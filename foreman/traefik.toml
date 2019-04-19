@@ -1,0 +1,59 @@
+[file]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":3100"
+  [entryPoints.traefik]
+  address = ":3200"
+
+# API definition
+# Warning: Enabling API will expose Traefik's configuration.
+# It is not recommended in production,
+# unless secured by authentication and authorizations
+[api]
+  # Name of the related entry point
+  #
+  # Optional
+  # Default: "traefik"
+  #
+  entryPoint = "traefik"
+
+  # Enable Dashboard
+  #
+  # Optional
+  # Default: true
+  #
+  dashboard = true
+
+  # Enable debug mode.
+  # This will install HTTP handlers to expose Go expvars under /debug/vars and
+  # pprof profiling data under /debug/pprof/.
+  # Additionally, the log level will be set to DEBUG.
+  #
+  # Optional
+  # Default: false
+  #
+  debug = true
+
+[rest]
+    # Backends
+    [backends]
+
+      [backends.et1backend]
+
+        [backends.et1backend.servers]
+          [backends.et1backend.servers.rails]
+            url = "http://localhost:5000"
+            weight = 1
+
+    # Frontends
+    [frontends]
+
+      [frontends.et1frontend]
+        entryPoints = ["http"]
+        backend = "et1backend"
+        passHostHeader = true
+        priority = 42
+        [frontends.et1frontend.routes.test_1]
+            rule = "HostRegexp:localhost,{subdomain:[a-z]+}.localhost"
+            backend = "et1backend"

@@ -1,0 +1,52 @@
+#!/bin/bash
+env
+mkdir /home/app/public
+sudo chown app:app /home/app/full_system/systems/et1/public/apply/assets
+sudo chown app:app /home/app/full_system/systems/et3/public/assets
+sudo chown app:app /home/app/full_system/systems/admin/public/assets
+sudo chown app:app /home/app/full_system/systems/et1/node_modules
+sudo chown app:app /home/app/full_system/systems/et1/log
+sudo chown app:app /home/app/full_system/systems/et3/log
+sudo chown app:app /home/app/full_system/systems/admin/log
+sudo chown app:app /home/app/full_system/systems/api/log
+sudo chown app:app /home/app/full_system/systems/atos/lib/rails_container/log
+sudo chown app:app /home/app/full_system/systems/et3/node_modules
+sudo chown app:app /home/app/full_system/systems/admin/node_modules
+sudo chown app:app /home/app/full_system/systems/et1/.bundle
+sudo chown app:app /home/app/full_system/systems/et3/.bundle
+sudo chown app:app /home/app/full_system/systems/api/.bundle
+sudo chown app:app /home/app/full_system/systems/admin/.bundle
+sudo chown app:app /home/app/full_system/systems/atos/.bundle
+sudo chown app:app /home/app/minio_data
+sudo chown app:app /home/app/azure_storage_data
+
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+echo "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
+cd "./systems/et1"
+/usr/local/rvm/bin/rvm use
+bundle install
+npm install
+env $(cat "$parent_path/../foreman/et1.env" | grep -v "#" | xargs) bundle exec rake db:create db:migrate assets:precompile
+echo "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
+cd "../et3" && /usr/local/rvm/bin/rvm use
+env $(cat "$parent_path/../foreman/et3.env" | grep -v "#" | xargs) bundle install --without=development test
+env $(cat "$parent_path/../foreman/et3.env" | grep -v "#" | xargs) bundle exec rake db:create db:migrate assets:precompile
+echo "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
+cd "../api" && /usr/local/rvm/bin/rvm use
+env $(cat "$parent_path/../foreman/et_api.env" | grep -v "#" | xargs) bundle install --without=development test
+env $(cat "$parent_path/../foreman/et_api.env" | grep -v "#" | xargs) bundle exec rake db:create db:migrate db:seed
+echo "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
+cd "../admin" && /usr/local/rvm/bin/rvm use
+env $(cat "$parent_path/../foreman/et_admin.env" | grep -v "#" | xargs) bundle install --without=development test
+env $(cat "$parent_path/../foreman/et_admin.env" | grep -v "#" | xargs) bundle exec rake db:seed assets:precompile
+echo "------------------------------------------------ SETTING UP ATOS FILE TRANSFER SERVICE ---------------------------------------------------"
+cd "../atos" && /usr/local/rvm/bin/rvm use
+env $(cat "$parent_path/../foreman/et_atos.env" | grep -v "#" | xargs) bundle install --without=development test
+echo "------------------------------------------------ SETTING UP FULL SYSTEM ---------------------------------------------------"
+cd "../.." && /usr/local/rvm/bin/rvm use
+bundle install --without=development --with=production test
+bundle exec et_full_system local setup &
+bundle exec et_full_system local file_storage setup &
+export FOREMAN_PATH="`bundle show et_full_system | tail -1`/foreman"
+export FS_ROOT_PATH=$PWD;
+forego start -f "${FOREMAN_PATH}/Procfile" -e "${FOREMAN_PATH}/.env"

@@ -1,0 +1,188 @@
+{
+  "backends": {
+    "et1": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:5101",
+          "weight": 1
+        }
+      }
+    },
+    "et3": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:5601",
+          "weight": 1
+        }
+      }
+    },
+    "admin": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:7801",
+          "weight": 1
+        }
+      }
+    },
+    "api": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:6501",
+          "weight": 1
+        }
+      }
+    },
+    "atos_api": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:8601",
+          "weight": 1
+        }
+      }
+    },
+    "s3": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:9000",
+          "weight": 1
+        }
+      }
+    },
+    "mail": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:8025",
+          "weight": 1
+        }
+      }
+    },
+    "azure_blob": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:10000",
+          "weight": 1
+        }
+      }
+    },
+    "fake_acas": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:11601",
+          "weight": 1
+        }
+      }
+    }
+
+
+  },
+  "frontends": {
+    "et1": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "et1",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:et1.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "et3": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "et3",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:et3.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "admin": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "admin",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:admin.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "api": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "api",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:api.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "atos_api": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "atos_api",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:atos.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "s3": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "s3",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:s3.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "mail": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "mail",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:mail.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "azure_blob": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "azure_blob",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:azure_blob_storage.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "fake_acas": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "fake_acas",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:acas.et.127.0.0.1.nip.io"
+        }
+      }
+    }
+  }
+}
