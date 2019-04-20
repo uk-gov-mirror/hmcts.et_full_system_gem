@@ -8,6 +8,9 @@ module EtFullSystem
     desc "local command(s)", "Performs commands on a local server (non docker)"
     subcommand "local", LocalCommand
 
+    desc "docker command(s)", "Performs commands on a docker server"
+    subcommand "docker", DockerCommand
+
 
   end
 end

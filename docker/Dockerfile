@@ -1,7 +1,6 @@
 FROM phusion/passenger-customizable:0.9.34
 # Set correct environment variables.
 ENV HOME /root
-ARG APP_UID
 
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
@@ -73,8 +72,6 @@ RUN mkdir /etc/service/smtp
 COPY ./docker/smtp.sh /etc/service/smtp/run
 RUN chmod +x /etc/service/smtp/run
 
-# Install gems and binstubs to run without bundler
-RUN mkdir -p /home/app/dummy_app/vendor/gems/et_full_system && chown -R app /home/app/dummy_app
 
 # Create the minio_data directory for the minio server
 RUN mkdir -p /home/app/minio_data; chown app:app /home/app/minio_data; chmod 0777 /home/app/minio_data
@@ -86,22 +83,25 @@ RUN mkdir -p /home/app/azure_storage_data; chown app:app /home/app/azure_storage
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir -p /home/app/full_system; chown app:app /home/app/full_system
+# Install gems and binstubs to run without bundler
+RUN mkdir -p /home/app/system_gems/et_full_system && chmod 0777 /home/app/system_gems/et_full_system && chown -R app:app /home/app/system_gems
+
 WORKDIR /home/app/full_system
 RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
-RUN usermod -u $APP_UID app
 USER app
 
 
 
 RUN bash --login -c "rvm --default use 2.5.1"
-RUN bash --login -c "gem install bundler --version=1.17.3"
+RUN bash --login -c "gem install bundler"
 
-# Bundle install the gem itself to include its dependencies defined in the Gemfile (which ar github so must be done like this)
-COPY . /home/app/dummy_app/vendor/gems/et_full_system
-WORKDIR /home/app/dummy_app
-RUN bash --login -c  "git init"
-RUN bash --login -c "echo -e \"source 'https://rubygems.org'\ngem 'et_full_system', path: 'vendor/gems/et_full_system'\" > Gemfile"
-RUN bash --login -c "rvm use && bundle install --binstubs"
+# Bundle install the gem itself to fetch all its dependencies defined in the Gemfile (git deps - hence the complex stuff) - then build and install the full system gem and fake acas server so they are available
+# as commands not needing bundle exec etc...
+COPY . /home/app/system_gems/et_full_system
+WORKDIR /home/app/system_gems/et_full_system
+RUN bash --login -c "rvm use && bundle install"
+RUN bash --login -c "rvm use && gem build et_full_system -o /tmp/et_full_system.gem && gem install /tmp/et_full_system.gem && rm /tmp/et_full_system.gem"
+RUN bash --login -c "rvm use && cd /usr/local/rvm/gems/ruby-2.5.1/bundler/gems/et_fake_acas_server* && gem build et_fake_acas_server -o /tmp/et_fake_acas_server.gem && gem install /tmp/et_fake_acas_server.gem && rm //tmp/et_fake_acas_server.gem"
 
 
 WORKDIR /home/app/full_system

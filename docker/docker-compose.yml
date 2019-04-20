@@ -1,12 +1,10 @@
 version: '3'
 services:
   et:
-    image: 'et_full_system'
+    image: 'et_full_system2'
     build:
       context: ../
       dockerfile: docker/Dockerfile
-      args:
-        APP_UID: ${UID:-9999}
 
     ports:
       - '${SERVER_PORT:-3100}:${SERVER_PORT:-3100}'
@@ -15,7 +13,7 @@ services:
     volumes:
       - rvm:/usr/local/rvm
       - global_node_modules:/usr/lib/node_modules
-      - ../..:/home/app/full_system
+      - ${PWD}:/home/app/full_system
       - et1_node_modules:/home/app/full_system/systems/et1/node_modules
       - et3_node_modules:/home/app/full_system/systems/et3/node_modules
       - api_node_modules:/home/app/full_system/systems/api/node_modules
@@ -68,7 +66,7 @@ services:
       AZURE_STORAGE_DIRECT_UPLOAD_CONTAINER: 'et-api-direct-test-container'
 
 
-    command: /bin/bash --login -c "cd /home/app/full_system && rvm use && bundle && bundle exec et_full_system local server"
+    command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server"
     networks:
       et_full_system:
         aliases:
