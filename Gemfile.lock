@@ -14,7 +14,7 @@ GIT
 PATH
   remote: .
   specs:
-    et_full_system (0.1.4)
+    et_full_system (0.1.5)
       aws-sdk-s3 (~> 1.9)
       azure-storage (~> 0.15.0.preview)
       httparty (~> 0.16)
@@ -35,10 +35,10 @@ GEM
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-kms (1.16.0)
+    aws-sdk-kms (1.17.0)
       aws-sdk-core (~> 3, >= 3.48.2)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.36.0)
+    aws-sdk-s3 (1.36.1)
       aws-sdk-core (~> 3, >= 3.48.2)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.0)

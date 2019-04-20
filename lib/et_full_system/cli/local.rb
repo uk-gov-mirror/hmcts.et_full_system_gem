@@ -75,7 +75,7 @@ module EtFullSystem
 
     desc "server", "Starts the full system server"
     def server
-      Bundler.with_original_env do
+      ::Bundler.with_original_env do
         cmd = File.absolute_path('../../../shell_scripts/run_foreman', __dir__)
         STDERR.puts cmd
         exec(cmd)
