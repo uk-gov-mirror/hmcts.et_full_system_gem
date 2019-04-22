@@ -1,7 +1,7 @@
 version: '3'
 services:
   et:
-    image: 'et_full_system2'
+    image: 'et_full_system:0.1.17'
     build:
       context: ../
       dockerfile: docker/Dockerfile
@@ -66,7 +66,7 @@ services:
       AZURE_STORAGE_DIRECT_UPLOAD_CONTAINER: 'et-api-direct-test-container'
 
 
-    command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server"
+    command: /bin/bash --login -c "cd /home/app/full_system && et_full_system docker bootstrap && et_full_system local server"
     networks:
       et_full_system:
         aliases:

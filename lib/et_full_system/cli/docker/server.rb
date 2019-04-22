@@ -4,12 +4,13 @@ module EtFullSystem
   module Cli
     module Docker
       class ServerCommand < Thor
+        BEFORE_BOOT_SCRIPT =
         desc "up", "Starts the full system server on docker"
-        def up
+        def up(*args)
           Bundler.with_original_env do
             gem_root = File.absolute_path('../../../..', __dir__)
-            cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml up"
-            STDERR.puts cmd
+            cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml up #{args.join(' ')}"
+            puts cmd
             exec(cmd)
           end
         end
@@ -19,7 +20,7 @@ module EtFullSystem
           Bundler.with_original_env do
             gem_root = File.absolute_path('../../../..', __dir__)
             cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
-            STDERR.puts cmd
+            puts cmd
             exec(cmd)
           end
         end

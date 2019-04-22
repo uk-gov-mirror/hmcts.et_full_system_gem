@@ -9,11 +9,15 @@ module EtFullSystem
   class LocalCommand < Thor
     DEFAULT_BASE_URL="http://localhost:3200"
     LOCK_FILE = File.join(Dir.tmpdir, 'et_full_system_traefik_rest_lockfile')
+    PROJECT_PATH = Dir.pwd
+    GEM_PATH = File.absolute_path('../../..', __dir__)
+
     class RestProviderNotConfigured < RuntimeError; end
     class ServiceUrlIncorrect < RuntimeError; end
     desc "setup", "Sets up the server - traefik frontends and backends, along with initial data in local s3 and azure storage"
     method_option :base_url, type: :string, default: DEFAULT_BASE_URL
     def setup
+      STDERR.puts "setup - base_url is #{options[:base_url]}"
       json_setup_file = File.absolute_path('../../../foreman/traefik.json', __dir__)
       connect_retry_countdown = 10
       begin
@@ -23,9 +27,9 @@ module EtFullSystem
       rescue Errno::EADDRNOTAVAIL
         connect_retry_countdown -= 1
         if connect_retry_countdown.zero?
-          raise "Could not connect to the traefik API after 10 retries"
+          raise "Could not connect to the traefik API after 10 retries (setup)"
         else
-          STDERR.puts "Retrying connection to traefik API in 5 seconds"
+          STDERR.puts "setup - Retrying connection to traefik API in 5 seconds"
           sleep 5
           retry
         end
@@ -53,9 +57,9 @@ module EtFullSystem
       rescue Errno::EADDRNOTAVAIL
         connect_retry_countdown -= 1
         if connect_retry_countdown.zero?
-          raise "Could not connect to the traefik API after 10 retries"
+          raise "Could not connect to the traefik API after 10 retries (wait_for_support)"
         else
-          STDERR.puts "Retrying connection to traefik API in 5 seconds"
+          STDERR.puts "wait_for_support - Retrying connection to traefik API in 5 seconds"
           sleep 5
           retry
         end
@@ -75,18 +79,91 @@ module EtFullSystem
 
     desc "server", "Starts the full system server"
     def server
+      setup_services
+      fork do
+        self.class.start(['setup'])
+        EtFullSystem::FileStorageCommand.start(['setup'])
+      end
+
       ::Bundler.with_original_env do
-        cmd = File.absolute_path('../../../shell_scripts/run_foreman', __dir__)
+        cmd = "FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman forego start -f \"#{GEM_PATH}/foreman/Procfile\" -e \"#{GEM_PATH}/foreman/.env\""
         STDERR.puts cmd
         exec(cmd)
-
       end
     end
 
     desc "file_storage <commands>", "Tools for the 'local cloud' file storage"
     subcommand "file_storage", ::EtFullSystem::FileStorageCommand
 
+    desc "setup_services", "Sets up all services in one command"
+    def setup_services
+      ::Bundler.with_original_env do
+        setup_et1_service
+        setup_et3_service
+        setup_api_service
+        setup_admin_service
+        setup_atos_service
+      end
+    end
+
     private
+
+    def setup_et1_service
+      puts "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && bundle install\""
+      puts cmd
+      system cmd
+
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && npm install\""
+      puts cmd
+      system cmd
+
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && env $(cat \"#{GEM_PATH}/foreman/et1.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate assets:precompile\""
+      puts cmd
+      system cmd
+    end
+
+    def setup_et3_service
+      puts "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && env $(cat \"#{GEM_PATH}/foreman/et3.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      puts cmd
+      system cmd
+
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && env $(cat \"#{GEM_PATH}/foreman/et3.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate assets:precompile\""
+      puts cmd
+      system cmd
+    end
+
+    def setup_admin_service
+      puts "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && env $(cat \"#{GEM_PATH}/foreman/et_admin.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      puts cmd
+      system cmd
+
+      puts "|   Admin    | Running rake commands"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && env $(cat \"#{GEM_PATH}/foreman/et_admin.env\" | grep -v \"#\" | xargs) bundle exec rake db:seed assets:precompile\""
+      puts cmd
+      system cmd
+    end
+
+    def setup_api_service
+      puts "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && env $(cat \"#{GEM_PATH}/foreman/et_api.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      puts cmd
+      system cmd
+
+      puts "|   API      | Running rake commands"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && env $(cat \"#{GEM_PATH}/foreman/et_api.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate db:seed\""
+      puts cmd
+      system cmd
+    end
+
+    def setup_atos_service
+      puts "------------------------------------------------ SETTING UP ATOS SERVICE ---------------------------------------------------"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && env $(cat \"#{GEM_PATH}/foreman/et_atos.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      puts cmd
+      system cmd
+    end
 
     def update_rest_backend_url(service, url)
       connect_retry_countdown = 10
@@ -99,9 +176,9 @@ module EtFullSystem
         if !options[:wait]
           fail "Could not connect to the traefik API - specify --wait to keep retrying when this happens"
         elsif connect_retry_countdown.zero?
-          fail "Could not connect to the traefik API after 10 retries"
+          fail "Could not connect to the traefik API after 10 retries (update_rest_backend_url)"
         else
-          STDERR.puts "Retrying connection to traefik API in 5 seconds"
+          STDERR.puts "update_rest_backend_url - Retrying connection to traefik API in 5 seconds"
           sleep 5
           retry
         end

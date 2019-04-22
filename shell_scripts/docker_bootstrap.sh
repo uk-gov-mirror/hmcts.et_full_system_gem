@@ -19,14 +19,3 @@ sudo chown app:app /home/app/full_system/systems/admin/.bundle
 sudo chown app:app /home/app/full_system/systems/atos/.bundle
 sudo chown app:app /home/app/minio_data
 sudo chown app:app /home/app/azure_storage_data
-
-parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-et_full_system local setup_services
-echo "------------------------------------------------ SETTING UP FULL SYSTEM ---------------------------------------------------"
-/usr/local/rvm/bin/rvm use
-bundle install --without=development --with=production test
-bundle exec et_full_system local setup &
-bundle exec et_full_system local file_storage setup &
-export FOREMAN_PATH="`bundle show et_full_system | tail -1`/foreman"
-export FS_ROOT_PATH=$PWD;
-forego start -f "${FOREMAN_PATH}/Procfile" -e "${FOREMAN_PATH}/.env"
