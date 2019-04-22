@@ -108,61 +108,69 @@ module EtFullSystem
 
     private
 
+    def external_command(cmd, tag)
+      IO.popen(cmd) do |io|
+        io.each do |line|
+          puts "| #{tag} | #{line}"
+        end
+      end
+    end
+
     def setup_et1_service
       puts "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
       cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && bundle install\""
       puts cmd
-      system cmd
+      external_command cmd, 'et1 setup'
 
       cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && npm install\""
       puts cmd
-      system cmd
+      external_command cmd, 'et1 setup'
 
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && env $(cat \"#{GEM_PATH}/foreman/et1.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
-      system cmd
+      external_command cmd, 'et1 setup'
     end
 
     def setup_et3_service
       puts "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && env $(cat \"#{GEM_PATH}/foreman/et3.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
       puts cmd
-      system cmd
+      external_command cmd, 'et3 setup'
 
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && env $(cat \"#{GEM_PATH}/foreman/et3.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
-      system cmd
+      external_command cmd, 'et3 setup'
     end
 
     def setup_admin_service
       puts "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && env $(cat \"#{GEM_PATH}/foreman/et_admin.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
       puts cmd
-      system cmd
+      external_command cmd, 'admin setup'
 
       puts "|   Admin    | Running rake commands"
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && env $(cat \"#{GEM_PATH}/foreman/et_admin.env\" | grep -v \"#\" | xargs) bundle exec rake db:seed assets:precompile\""
       puts cmd
-      system cmd
+      external_command cmd, 'admin setup'
     end
 
     def setup_api_service
       puts "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && env $(cat \"#{GEM_PATH}/foreman/et_api.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
       puts cmd
-      system cmd
+      external_command cmd, 'api setup'
 
       puts "|   API      | Running rake commands"
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && env $(cat \"#{GEM_PATH}/foreman/et_api.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate db:seed\""
       puts cmd
-      system cmd
+      external_command cmd, 'api setup'
     end
 
     def setup_atos_service
       puts "------------------------------------------------ SETTING UP ATOS SERVICE ---------------------------------------------------"
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && env $(cat \"#{GEM_PATH}/foreman/et_atos.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
       puts cmd
-      system cmd
+      external_command cmd, 'atos setup'
     end
 
     def update_rest_backend_url(service, url)
