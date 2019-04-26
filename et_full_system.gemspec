@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'httparty', '~> 0.16'
   spec.add_dependency 'aws-sdk-s3', '~> 1.9'
   spec.add_dependency 'azure-storage', '~> 0.15.0.preview'
+  spec.add_dependency 'dotenv', '~> 2.7', '>= 2.7.2'
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"
 end

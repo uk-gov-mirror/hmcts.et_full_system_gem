@@ -60,19 +60,6 @@ RUN bash -lc "npm install -g azurite"
 # Install Mailhog
 RUN bash -lc "cd /usr/local/bin && wget https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64 -O mailhog && chmod +x mailhog"
 
-RUN mkdir /etc/service/s3
-COPY ./docker/s3.sh /etc/service/s3/run
-RUN chmod +x /etc/service/s3/run
-
-RUN mkdir /etc/service/azure_storage
-COPY ./docker/azure_storage.sh /etc/service/azure_storage/run
-RUN chmod +x /etc/service/azure_storage/run
-
-RUN mkdir /etc/service/smtp
-COPY ./docker/smtp.sh /etc/service/smtp/run
-RUN chmod +x /etc/service/smtp/run
-
-
 # Create the minio_data directory for the minio server
 RUN mkdir -p /home/app/minio_data; chown app:app /home/app/minio_data; chmod 0777 /home/app/minio_data
 
@@ -99,10 +86,13 @@ RUN bash --login -c "gem install bundler"
 # as commands not needing bundle exec etc...
 COPY . /home/app/system_gems/et_full_system
 WORKDIR /home/app/system_gems/et_full_system
+RUN sudo chown -R app:app .
+RUN bash --login -c "ls -al /home/app/system_gems/et_full_system"
 RUN bash --login -c "rvm use && bundle install"
+RUN bash --login -c "rvm use && gem install dotenv"
+
 RUN bash --login -c "rvm use && gem build et_full_system -o /tmp/et_full_system.gem && gem install /tmp/et_full_system.gem && rm /tmp/et_full_system.gem"
 RUN bash --login -c "rvm use && cd /usr/local/rvm/gems/ruby-2.5.1/bundler/gems/et_fake_acas_server* && gem build et_fake_acas_server -o /tmp/et_fake_acas_server.gem && gem install /tmp/et_fake_acas_server.gem && rm //tmp/et_fake_acas_server.gem"
-
 
 WORKDIR /home/app/full_system
 

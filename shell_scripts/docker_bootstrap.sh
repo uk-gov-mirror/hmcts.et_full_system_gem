@@ -1,5 +1,4 @@
 #!/bin/bash
-env
 mkdir /home/app/public
 sudo chown app:app /home/app/full_system/systems/et1/public/apply/assets
 sudo chown app:app /home/app/full_system/systems/et3/public/assets

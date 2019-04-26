@@ -32,41 +32,18 @@ services:
       DISABLE_CLOUDWATCH: 'true'
       DB_HOST: 'db'
       DB_USERNAME: 'postgres'
-      SMTP_HOSTNAME: 'mail.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}'
-      SMTP_PORT: '1025'
-
-      SECRET_KEY_BASE: sdlkjewfkjhfviuhduihenrjk435r89esfd7cv983qh2n4r3q27yh4u5rtfg
+      RAILS_ENV:
+      RAILS_LOG_LEVEL:
       REDIS_HOST: redis
-      AWS_ACCESS_KEY_ID: accessKey1
-      AWS_SECRET_ACCESS_KEY: verySecretKey1
-      AWS_REGION: 'us-east-1'
-      AWS_ENDPOINT: 'http://s3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}:${SERVER_PORT:-3100}'
-      AWS_S3_FORCE_PATH_STYLE: 'true'
-      S3_UPLOAD_BUCKET: 'etapibucket'
-      RAILS_ENV: 'production' # Caution - ET1 runs as local
       SERVER_PORT: ${SERVER_PORT:-3100}
       SERVER_DOMAIN: ${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
       CLOUD_PROVIDER: ${CLOUD_PROVIDER:-amazon}
-      MY_ET3:
-      MY_ET1:
-      MY_API:
-      MY_ADMIN:
-      MY_FAKE_ACAS:
-      MY_ATOS:
-      ATOS_API_USERNAME: atos
-      ATOS_API_PASSWORD: password
-      RAILS_LOG_TO_STDOUT: 'true'
-      AZURE_STORAGE_BLOB_HOST: 'http://azure_blob_storage.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}:${SERVER_PORT:-3100}'
-      AZURE_STORAGE_BLOB_FORCE_PATH_STYLE: 'true'
-      AZURE_STORAGE_ACCOUNT: 'devstoreaccount1'
-      AZURE_STORAGE_ACCESS_KEY: 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
-      AZURE_STORAGE_CONTAINER: 'et-api-test-container'
-      AZURE_STORAGE_DIRECT_UPLOAD_ACCOUNT: 'devstoreaccount1'
-      AZURE_STORAGE_DIRECT_UPLOAD_ACCESS_KEY: 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
-      AZURE_STORAGE_DIRECT_UPLOAD_CONTAINER: 'et-api-direct-test-container'
-
-
-    command: /bin/bash --login -c "cd /home/app/full_system && et_full_system docker bootstrap && et_full_system local server"
+      AZURITE_STORAGE_PATH: /home/app/azure_storage_data
+      MINIO_STORAGE_PATH: /home/app/minio_data
+    command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server"
+    links:
+      - "db"
+      - "redis"
     networks:
       et_full_system:
         aliases:

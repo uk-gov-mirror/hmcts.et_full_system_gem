@@ -4,7 +4,8 @@ module EtFullSystem
   require "rubygems"
   require "thor"
   require 'httparty'
-  require 'et_full_system/cli/file_storage'
+  require 'et_full_system/cli/local/file_storage'
+  require 'dotenv'
 
   class LocalCommand < Thor
     DEFAULT_BASE_URL="http://localhost:3200"
@@ -14,22 +15,22 @@ module EtFullSystem
 
     class RestProviderNotConfigured < RuntimeError; end
     class ServiceUrlIncorrect < RuntimeError; end
-    desc "setup", "Sets up the server - traefik frontends and backends, along with initial data in local s3 and azure storage"
+    desc "boot", "Sets up the server - traefik frontends and backends, along with initial data in local s3 and azure storage"
     method_option :base_url, type: :string, default: DEFAULT_BASE_URL
-    def setup
-      STDERR.puts "setup - base_url is #{options[:base_url]}"
+    def boot
+      STDERR.puts "boot - base_url is #{options[:base_url]}"
       json_setup_file = File.absolute_path('../../../foreman/traefik.json', __dir__)
       connect_retry_countdown = 10
       begin
         resp = HTTParty.put "#{options[:base_url]}/api/providers/rest", body: File.read(json_setup_file) , headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        raise "Error from traefik when performing initial config says: #{put_resp.body}" unless (200..299).include? resp.code
+        raise "Error from traefik when performing initial config says: #{resp.body}" unless (200..299).include? resp.code
         sleep 1
-      rescue Errno::EADDRNOTAVAIL
+      rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED
         connect_retry_countdown -= 1
         if connect_retry_countdown.zero?
-          raise "Could not connect to the traefik API after 10 retries (setup)"
+          raise "Could not connect to the traefik API after 10 retries (boot)"
         else
-          STDERR.puts "setup - Retrying connection to traefik API in 5 seconds"
+          STDERR.puts "boot - Retrying connection to traefik API in 5 seconds"
           sleep 5
           retry
         end
@@ -54,7 +55,7 @@ module EtFullSystem
       begin
         resp = HTTParty.get "#{options[:base_url]}/api/providers/rest", headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
         raise RestProviderNotConfigured if resp.code == 404
-      rescue Errno::EADDRNOTAVAIL
+      rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED
         connect_retry_countdown -= 1
         if connect_retry_countdown.zero?
           raise "Could not connect to the traefik API after 10 retries (wait_for_support)"
@@ -78,22 +79,34 @@ module EtFullSystem
 
 
     desc "server", "Starts the full system server"
+    method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, s3_web, azure_blob_web, fake_acas_web"
+    method_option :azurite_storage_path, default: '/tmp/azurite_storage', desc: "Where to store azurite data"
+    method_option :minio_storage_path, default: '/tmp/minio_storage', desc: "Where to store minio data"
     def server
-      setup_services
-      fork do
-        self.class.start(['setup'])
-        EtFullSystem::FileStorageCommand.start(['setup'])
+      puts "Scheduling traefik config and file storage config"
+      pid = fork do
+        self.class.start(['boot'])
+        EtFullSystem::Cli::Local::FileStorageCommand.start(['setup'])
       end
+      Process.detach(pid)
 
+      puts "Starting Procfile"
       ::Bundler.with_original_env do
-        cmd = "FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman forego start -f \"#{GEM_PATH}/foreman/Procfile\" -e \"#{GEM_PATH}/foreman/.env\""
+        concurrency = " -c #{procfile_concurrency_without(options[:without]).join(',')}"
+        cmd = "AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman forego start -f \"#{GEM_PATH}/foreman/Procfile\" -e \"#{GEM_PATH}/foreman/.env\"#{concurrency}"
         STDERR.puts cmd
         exec(cmd)
       end
     end
 
     desc "file_storage <commands>", "Tools for the 'local cloud' file storage"
-    subcommand "file_storage", ::EtFullSystem::FileStorageCommand
+    subcommand "file_storage", ::EtFullSystem::Cli::Local::FileStorageCommand
+
+    desc "setup", "Sets up everything ready for first run"
+    def setup
+      setup_depencencies
+      setup_services
+    end
 
     desc "setup_services", "Sets up all services in one command"
     def setup_services
@@ -106,7 +119,42 @@ module EtFullSystem
       end
     end
 
+    desc "setup_dependencies", "Sets up all local dependencies"
+    def setup_depencencies
+      cmd = "bash --login -c \"cd /tmp && git clone https://github.com/ministryofjustice/et_fake_acas_server.git && cd et_fake_acas_server && gem build -o et_fake_acas_server.gem et_fake_acas_server && gem install et_fake_acas_server.gem && cd .. && rm -rf et_fake_acas_server\""
+      STDERR.puts cmd
+      external_command cmd, 'setup_dependencies'
+    end
+
+    desc "service_env SERVICE", "Returns the environment variables configured for the specified service"
+    def service_env(service)
+      lookup = {
+        'atos_api' => :et_atos,
+        'admin' => :et_admin,
+        'api' => :et_api,
+        'et1' => :et1,
+        'et3' => :et3
+      }
+      file = lookup.fetch(service)
+      parsed = Dotenv.parse("#{GEM_PATH}/foreman/.env", "#{GEM_PATH}/foreman/#{file}.env")
+      parsed.each_pair do |name, value|
+        puts "#{name}=#{value}"
+      end
+
+    end
+
     private
+
+    def procfile_services
+      File.readlines("#{GEM_PATH}/foreman/Procfile").inject([]) do |acc, line|
+        next if line.strip.start_with?('#')
+        acc + [line.split(':').first]
+      end
+    end
+
+    def procfile_concurrency_without(without)
+      procfile_services.map {|service| "#{service}=#{without.include?(service) ? 0 : 1}"}
+    end
 
     def external_command(cmd, tag)
       IO.popen(cmd) do |io|
@@ -118,7 +166,7 @@ module EtFullSystem
 
     def setup_et1_service
       puts "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
-      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && bundle install\""
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle install\""
       puts cmd
       external_command cmd, 'et1 setup'
 
@@ -126,49 +174,49 @@ module EtFullSystem
       puts cmd
       external_command cmd, 'et1 setup'
 
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && env $(cat \"#{GEM_PATH}/foreman/et1.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et1.env\" bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
       external_command cmd, 'et1 setup'
     end
 
     def setup_et3_service
       puts "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && env $(cat \"#{GEM_PATH}/foreman/et3.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle install --without=development test\""
       puts cmd
       external_command cmd, 'et3 setup'
 
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && env $(cat \"#{GEM_PATH}/foreman/et3.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
       external_command cmd, 'et3 setup'
     end
 
     def setup_admin_service
       puts "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && env $(cat \"#{GEM_PATH}/foreman/et_admin.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle install --without=development test\""
       puts cmd
       external_command cmd, 'admin setup'
 
       puts "|   Admin    | Running rake commands"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && env $(cat \"#{GEM_PATH}/foreman/et_admin.env\" | grep -v \"#\" | xargs) bundle exec rake db:seed assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle exec rake db:seed assets:precompile\""
       puts cmd
       external_command cmd, 'admin setup'
     end
 
     def setup_api_service
       puts "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && env $(cat \"#{GEM_PATH}/foreman/et_api.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle install --without=development test\""
       puts cmd
       external_command cmd, 'api setup'
 
       puts "|   API      | Running rake commands"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && env $(cat \"#{GEM_PATH}/foreman/et_api.env\" | grep -v \"#\" | xargs) bundle exec rake db:create db:migrate db:seed\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle exec rake db:create db:migrate db:seed\""
       puts cmd
       external_command cmd, 'api setup'
     end
 
     def setup_atos_service
       puts "------------------------------------------------ SETTING UP ATOS SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && env $(cat \"#{GEM_PATH}/foreman/et_atos.env\" | grep -v \"#\" | xargs) bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" bundle install --without=development test\""
       puts cmd
       external_command cmd, 'atos setup'
     end
@@ -179,7 +227,7 @@ module EtFullSystem
       begin
         resp = HTTParty.get "#{options[:base_url]}/api/providers/rest", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
         raise RestProviderNotConfigured if resp.code == 404
-      rescue Errno::EADDRNOTAVAIL
+      rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED
         connect_retry_countdown -= 1
         if !options[:wait]
           fail "Could not connect to the traefik API - specify --wait to keep retrying when this happens"

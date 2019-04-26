@@ -1,3 +1,4 @@
+require 'bundler'
 module EtFullSystem
   #!/usr/bin/env ruby
   # frozen_string_literal: true
@@ -17,7 +18,7 @@ module EtFullSystem
 
         desc "down", "Stops the full system server on docker"
         def down(*args)
-          Bundler.with_original_env do
+          ::Bundler.with_original_env do
             gem_root = File.absolute_path('../../../..', __dir__)
             cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
             puts cmd
