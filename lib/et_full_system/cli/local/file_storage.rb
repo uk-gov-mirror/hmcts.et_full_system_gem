@@ -9,7 +9,7 @@ module EtFullSystem
   module Cli
     module Local
       class FileStorageCommand < Thor
-        GEM_PATH = File.absolute_path('../../..', __dir__)
+        GEM_PATH = File.absolute_path('../../../..', __dir__)
 
         desc "setup", "Primes the storage account(s) for running locally - i.e. using local S3 or Azure Blob storage"
         def setup_storage
