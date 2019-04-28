@@ -16,11 +16,11 @@ systems/api (https://github.com/ministryofjustice/et_api)
 The system works by placing a reverse proxy (traefik https://github.com/containous/traefik) in front of the 5 services
 so that all services can be accessed using a standard subdomain based url system which looks like this
 
-et1.et.127.0.0.1.nip.io:3100 For ET1
-et3.et.127.0.0.1.nip.io:3100 For ET3
-admin.et.127.0.0.1.nip.io:3100 For Admin
-et1.et.127.0.0.1.nip.io:3100 For ET1
-et1.et.127.0.0.1.nip.io:3100 For ET1
+* et1.et.127.0.0.1.nip.io:3100 For ET1
+* et3.et.127.0.0.1.nip.io:3100 For ET3
+* admin.et.127.0.0.1.nip.io:3100 For Admin
+* et1.et.127.0.0.1.nip.io:3100 For ET1
+* et1.et.127.0.0.1.nip.io:3100 For ET1
 
 The services are run all together using 'forego' (like foreman - runs a Procfile) and once the port number for each
 service is known, traefik is told about it - so it all just works.

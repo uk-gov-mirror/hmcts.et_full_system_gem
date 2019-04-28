@@ -3,6 +3,7 @@
 require "rubygems"
 require "thor"
 require "et_full_system/cli"
+require "et_full_system/version"
 module EtFullSystem
   class RootCommand < Thor
     desc "local command(s)", "Performs commands on a local server (non docker)"
