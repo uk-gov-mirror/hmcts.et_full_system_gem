@@ -91,9 +91,7 @@ WORKDIR /home/app/system_gems/et_full_system
 RUN sudo chown -R app:app .
 RUN bash --login -c "ls -al /home/app/system_gems/et_full_system"
 RUN bash --login -c "rvm use && bundle install"
-RUN bash --login -c "rvm use && gem install dotenv"
-
-RUN bash --login -c "rvm use && gem build et_full_system -o /tmp/et_full_system.gem && gem install /tmp/et_full_system.gem && rm /tmp/et_full_system.gem"
+RUN bash --login -c "rvm use && gem install dotenv et_full_system"
 RUN bash --login -c "rvm use && cd /usr/local/rvm/gems/ruby-2.5.1/bundler/gems/et_fake_acas_server* && gem build et_fake_acas_server -o /tmp/et_fake_acas_server.gem && gem install /tmp/et_fake_acas_server.gem && rm //tmp/et_fake_acas_server.gem"
 
 WORKDIR /home/app/full_system
