@@ -14,7 +14,7 @@ GIT
 PATH
   remote: .
   specs:
-    et_full_system (0.1.25)
+    et_full_system (0.1.26)
       aws-sdk-s3 (~> 1.9)
       azure-storage (~> 0.15.0.preview)
       dotenv (~> 2.7, >= 2.7.2)
@@ -30,7 +30,7 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
     aws-eventstream (1.0.3)
-    aws-partitions (1.154.0)
+    aws-partitions (1.155.0)
     aws-sdk-core (3.48.6)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1.0)
