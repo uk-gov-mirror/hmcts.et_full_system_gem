@@ -82,6 +82,7 @@ module EtFullSystem
     method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, s3_web, azure_blob_web, fake_acas_web"
     method_option :azurite_storage_path, default: '/tmp/azurite_storage', desc: "Where to store azurite data"
     method_option :minio_storage_path, default: '/tmp/minio_storage', desc: "Where to store minio data"
+    method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
     def server
       puts "Scheduling traefik config and file storage config"
       pid = fork do
@@ -103,6 +104,7 @@ module EtFullSystem
     subcommand "file_storage", ::EtFullSystem::Cli::Local::FileStorageCommand
 
     desc "setup", "Sets up everything ready for first run"
+    method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
     def setup
       setup_depencencies
       setup_services
@@ -166,7 +168,7 @@ module EtFullSystem
 
     def setup_et1_service
       puts "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
-      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et1.env\" bundle install\""
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et1.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et1 setup'
 
@@ -181,7 +183,7 @@ module EtFullSystem
 
     def setup_et3_service
       puts "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et3 setup'
 
@@ -192,7 +194,7 @@ module EtFullSystem
 
     def setup_admin_service
       puts "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'admin setup'
 
@@ -204,7 +206,7 @@ module EtFullSystem
 
     def setup_api_service
       puts "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'api setup'
 
@@ -216,7 +218,7 @@ module EtFullSystem
 
     def setup_atos_service
       puts "------------------------------------------------ SETTING UP ATOS SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" bundle install --without=development test\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'atos setup'
     end
