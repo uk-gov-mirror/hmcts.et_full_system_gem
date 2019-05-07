@@ -40,7 +40,7 @@ services:
       CLOUD_PROVIDER: ${CLOUD_PROVIDER:-amazon}
       AZURITE_STORAGE_PATH: /home/app/azure_storage_data
       MINIO_STORAGE_PATH: /home/app/minio_data
-    command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server"
+    command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server ${SERVER_ARGS}"
     links:
       - "db"
       - "redis"
