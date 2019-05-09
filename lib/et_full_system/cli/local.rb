@@ -80,8 +80,8 @@ module EtFullSystem
 
     desc "server", "Starts the full system server"
     method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, s3_web, azure_blob_web, fake_acas_web"
-    method_option :azurite_storage_path, default: '/tmp/azurite_storage', desc: "Where to store azurite data"
-    method_option :minio_storage_path, default: '/tmp/minio_storage', desc: "Where to store minio data"
+    method_option :azurite_storage_path, default: ENV.fetch('AZURITE_STORAGE_PATH', '/tmp/azurite_storage'), desc: "Where to store azurite data"
+    method_option :minio_storage_path, default: ENV.fetch('MINIO_STORAGE_PATH', '/tmp/minio_storage'), desc: "Where to store minio data"
     method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
     method_option :cloud_provider, type: :string, default: ENV.fetch('CLOUD_PROVIDER', 'amazon')
     def server

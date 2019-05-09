@@ -79,9 +79,6 @@ WORKDIR /home/app/full_system
 RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
 
-RUN mkdir /tmp/azurite_storage
-RUN mkdir /tmp/minio_storage
-
 RUN bash --login -c "rvm --default use 2.5.1"
 RUN bash --login -c "gem install bundler"
 
