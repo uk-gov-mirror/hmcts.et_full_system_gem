@@ -82,18 +82,10 @@ USER app
 RUN bash --login -c "rvm --default use 2.5.1"
 RUN bash --login -c "gem install bundler"
 
-# Bundle install the gem itself to fetch all its dependencies defined in the Gemfile (git deps - hence the complex stuff) - then build and install the full system gem and fake acas server so they are available
-# as commands not needing bundle exec etc...
-COPY . /home/app/system_gems/et_full_system
-WORKDIR /home/app/system_gems/et_full_system
-RUN sudo chown -R app:app .
-RUN bash --login -c "ls -al /home/app/system_gems/et_full_system"
-RUN bash --login -c "rvm use && bundle install"
-RUN bash --login -c "rvm use && gem install dotenv et_full_system"
-RUN bash --login -c "rvm use && cd /usr/local/rvm/gems/ruby-2.5.1/bundler/gems/et_fake_acas_server* && gem build et_fake_acas_server -o /tmp/et_fake_acas_server.gem && gem install /tmp/et_fake_acas_server.gem && rm //tmp/et_fake_acas_server.gem"
+# Install gems required outside of any bundle.
+RUN bash --login -c "rvm use && gem install dotenv et_full_system et_fake_acas_server"
 
 WORKDIR /home/app/full_system
-
 
 RUN cd /home/app
 ENV HOME /home/app
