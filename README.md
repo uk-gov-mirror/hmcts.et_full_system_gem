@@ -157,6 +157,9 @@ wouldnt go to plan.
 
 The --without flag tells the system to start up, but exclude et1_web and et1_sidekiq
 
+Then, I do the same command as the previous example to tell it to use my local web server
+
+    $ et_full_system docker update_service_url et1 http://docker.host.internal:3000
 
 ## Usage (Without docker)
 
