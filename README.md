@@ -132,7 +132,7 @@ database, then they will both process jobs, meaning you might not see the jobs b
 Say I am working on a Mac and I wanted to work on some front end stuff in ET1 but wasn't touching any 
 background jobs in sidekiq - I would do this (with et_full_system docker server already running) :-
 
-    $ et_full_system docker update_service_url et1 http://docker.host.internal:3000
+    $ et_full_system docker update_service_url et1 http://host.docker.internal:3000
     
 And then start your local server, not forgetting any important environment variables (hint - to see what the docker version has them 
 set to - do use the service_env command as previously mentioned)    
@@ -159,7 +159,7 @@ The --without flag tells the system to start up, but exclude et1_web and et1_sid
 
 Then, I do the same command as the previous example to tell it to use my local web server
 
-    $ et_full_system docker update_service_url et1 http://docker.host.internal:3000
+    $ et_full_system docker update_service_url et1 http://host.docker.internal:3000
 
 ## Usage (Without docker)
 
