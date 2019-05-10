@@ -40,6 +40,7 @@ services:
       CLOUD_PROVIDER: ${CLOUD_PROVIDER:-amazon}
       AZURITE_STORAGE_PATH: /home/app/azure_storage_data
       MINIO_STORAGE_PATH: /home/app/minio_data
+      SHOW_DOWNTIME_BANNER:
     command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server --azurite-storage-path=/home/app/azure_storage_data --minio-storage-path=/home/app/minio_data ${SERVER_ARGS}"
     links:
       - "db"
