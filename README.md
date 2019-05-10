@@ -67,10 +67,8 @@ github directly.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'et_full_system', '0.1.17', git: 'https://github.com/hmcts/et_full_system_gem.git', ref: '2b684106ae42affaffe454ac190f65d55d9baab9'
+gem 'et_full_system', '~> 0.1'
 ```
-
-Replacing the version numbers and git ref according to the latest version.
 
 And then execute:
 
@@ -80,15 +78,11 @@ And if you want to install a binstub (do bundle help binstubs for more options y
 
     $ bundle binstubs et_full_system --standalone
 
-### Installing Direct From Github
+### Installing Direct
 
-Or install it yourself directly from github as follows:
+Or install it yourself directly from rubygems as follows:
 
-    $ git checkout git@github.com:hmcts/et_full_system_gem.git
-    $ cd et_full_system_gem
-    $ gem build et_full_system -o et_full_system.gem
-    $ gem install et_full_system.gem
-    $ rm et_full_system.gem
+    $ gem install et_full_system
 
 ## Usage (using docker)
 
@@ -126,6 +120,42 @@ the relevant environment variables (see the service_env command), then, to point
 Where <service_name> is either et1, et3, admin, api or atos
 and <service_url> must be a URL that is reachable from the docker container - you may need to use the special 'host.docker.internal'
 or in general checkout this page https://docs.docker.com/docker-for-mac/networking/ or https://docs.docker.com/docker-for-windows/networking/
+
+Note, you need to really think when you are doing this.  If you have 2 services running (one local, one in docker) - what will happen ?  In the
+case of a web server, nothing - it will just waste resources - but if you have 2 sidekiq's running and they are pointing to the same redis
+database, then they will both process jobs, meaning you might not see the jobs being taken by your local version.
+
+### Examples Of Local Hosting
+
+#### Web Server Only
+
+Say I am working on a Mac and I wanted to work on some front end stuff in ET1 but wasn't touching any 
+background jobs in sidekiq - I would do this (with et_full_system docker server already running) :-
+
+    $ et_full_system docker update_service_url et1 http://docker.host.internal:3000
+    
+And then start your local server, not forgetting any important environment variables (hint - to see what the docker version has them 
+set to - do use the service_env command as previously mentioned)    
+
+This would leave the docker et1 running, but the reverse proxy (traefik) would be sending all traffic to your local server
+
+#### Web Server AND Sidekiq
+
+Say I am working on a Mac and I wanted to work on some front end stuff that includes the background jobs.
+I need to redirect the web server, however I also need to prevent sidekiq from running on the server - and whilst I am at it,
+I may as well tell it not to run the web server - so ive got more memory available on my machine.
+I also want the database server and the sidekiq server to be available to save me running them
+
+First, I would stop the existing et_full_system docker server, then restart it with the following command
+
+    $ DB_PORT=5432 REDIS_PORT=6379 et_full_system docker server --without=et1_web et1_sidekiq
+    
+The DB_PORT and REDIS_PORT env vars tell the docker system to forward those ports to your local machine.  If you dont want to
+do that as you have your own database and redisk server, leave that out - but as always, think about what you are doing.  If this
+were the API for example, both admin and et_atos_file_transfer services share the same database - if yours were isolated then things
+wouldnt go to plan.
+
+The --without flag tells the system to start up, but exclude et1_web and et1_sidekiq
 
 
 ## Usage (Without docker)

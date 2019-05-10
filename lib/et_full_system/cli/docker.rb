@@ -65,7 +65,7 @@ module EtFullSystem
     def service_env(service)
       Bundler.with_original_env do
         gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "/bin/bash --login -c \"et_full_system local service_env #{service} #{service}\""
+        cmd = "/bin/bash --login -c \"et_full_system local service_env #{service}\""
         compose_cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
         puts compose_cmd
         exec(compose_cmd)
