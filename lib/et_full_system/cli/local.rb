@@ -120,6 +120,7 @@ module EtFullSystem
         setup_api_service
         setup_admin_service
         setup_atos_service
+        setup_ccd_service
       end
     end
 
@@ -223,6 +224,13 @@ module EtFullSystem
       cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'atos setup'
+    end
+    
+    def setup_ccd_service
+      puts "------------------------------------------------ SETTING UP CCD EXPORT SERVICE ---------------------------------------------------"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et_ccd_export && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_ccd_export.env\" bundle install --with=#{options[:rails_env]}\""
+      puts cmd
+      external_command cmd, 'ccd setup'
     end
 
     def update_rest_backend_url(service, url)
