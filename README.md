@@ -51,6 +51,7 @@ To run without docker, you need a few tools
 * Mailhog (https://github.com/mailhog/MailHog)
 * Minio (https://github.com/minio/minio)
 * Azurite (https://github.com/Azure/Azurite)
+* godotenv (https://github.com/joho/godotenv)
 
 I will not include installation instructions here for them - please visit their web sites and install them on your platform.
 For OSX users check out the homebrew repository - there are formulas for some of these.
