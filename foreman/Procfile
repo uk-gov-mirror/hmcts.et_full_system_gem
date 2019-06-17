@@ -10,4 +10,4 @@ atos_api_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_f
 s3_web: bash --login -c "dotenv -f ${FOREMAN_PATH}/minio.env minio server ${MINIO_STORAGE_PATH}"
 azure_blob_web: bash --login -c "azurite -l ${AZURITE_STORAGE_PATH}"
 fake_acas_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url fake_acas http://localhost:${PORT} && rvm use && et_fake_acas_server --port=$PORT --threads=1:5"
-et_ccd_export_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && cd systems/et_ccd_export && dotenv -f ${FOREMAN_PATH}/.env dotenv -f ${FOREMAN_PATH}/et_ccd_export.env ./run.sh"
+et_ccd_export_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && cd systems/et_ccd_export && dotenv -f ${FOREMAN_PATH}/.env dotenv -f ${FOREMAN_PATH}/et_ccd_export.env ./run_sidekiq.sh"
