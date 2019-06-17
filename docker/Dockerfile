@@ -38,7 +38,7 @@ RUN bash --login -c "rvm --default use 2.5.1"
 RUN gem update --system
 
 # ...put your own build instructions here...
-RUN apt-get update && apt-get -y install pdftk tzdata postgresql gettext-base wget sudo libmcrypt-dev mcrypt
+RUN apt-get update && apt-get -y --no-install-recommends install pdftk tzdata postgresql gettext-base wget sudo libmcrypt-dev mcrypt && rm -rf /var/lib/apt/lists/*
 
 RUN /pd_build/nodejs.sh
 
@@ -59,6 +59,9 @@ RUN bash -lc "npm install -g azurite"
 
 # Install Mailhog
 RUN bash -lc "cd /usr/local/bin && wget https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64 -O mailhog && chmod +x mailhog"
+
+# Install go, then godotenv, then remove go
+RUN apt-get update && apt-get -y install --no-install-recommends golang && export GOPATH=/home/app/go && mkdir -p /home/app/go && go get github.com/joho/godotenv/cmd/godotenv && apt-get -y remove golang && apt -y autoremove && rm -rf /var/lib/apt/lists/* && cp /home/app/go/bin/godotenv /usr/bin/ && rm -rf /home/app/go
 
 # Create the minio_data directory for the minio server
 RUN mkdir -p /home/app/minio_data; chown app:app /home/app/minio_data; chmod 0777 /home/app/minio_data
