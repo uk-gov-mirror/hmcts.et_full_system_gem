@@ -53,6 +53,20 @@ To run without docker, you need a few tools
 * Azurite (https://github.com/Azure/Azurite)
 * godotenv (https://github.com/joho/godotenv)
 
+### Running With CCD
+
+If you intend to connect to ccd-docker and export cases all the way through, the following env vars are
+passed through to the et-ccd-export service.  Note that these all default to docker.for.mac.localhost:<port>
+so if you are running on a mac, it should hopefully work.
+
+```
+    CCD_AUTH_BASE_URL
+    CCD_IDAM_BASE_URL
+    CCD_DATA_STORE_BASE_URL
+
+
+```
+
 I will not include installation instructions here for them - please visit their web sites and install them on your platform.
 For OSX users check out the homebrew repository - there are formulas for some of these.
 
