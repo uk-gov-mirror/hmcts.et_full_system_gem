@@ -46,7 +46,7 @@ services:
       CCD_DATA_STORE_BASE_URL: ${CCD_DATA_STORE_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/data_store}
       CCD_USE_SIDAM: ${CCD_USE_SIDAM:-true}
       CCD_MICROSERVICE_ID: ${CCD_MICROSERVICE_ID:-ccd_gw}
-      CCD_MICROSERVICE_SECRET: ${CCD_MICROSERVICE_SECRET:-'AAAAAAAAAAAAAAAC'}
+      CCD_MICROSERVICE_SECRET: ${CCD_MICROSERVICE_SECRET:-AAAAAAAAAAAAAAAC}
 
     command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server --azurite-storage-path=/home/app/azure_storage_data --minio-storage-path=/home/app/minio_data ${SERVER_ARGS}"
     links:
