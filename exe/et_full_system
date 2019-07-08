@@ -12,6 +12,9 @@ module EtFullSystem
     desc "docker command(s)", "Performs commands on a docker server"
     subcommand "docker", DockerCommand
 
+    desc "workspace command(s)", "Performs commands on a et full system workspace"
+    subcommand "workspace", WorkspaceCommand
+
     desc "version", "Shows the version of et_full_system"
     def version
       puts ::EtFullSystem::VERSION
