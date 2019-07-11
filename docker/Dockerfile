@@ -38,7 +38,7 @@ RUN bash --login -c "rvm --default use 2.5.1"
 RUN gem update --system
 
 # ...put your own build instructions here...
-RUN apt-get update && apt-get -y --no-install-recommends install pdftk tzdata postgresql gettext-base wget sudo libmcrypt-dev mcrypt && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y --no-install-recommends install pdftk tzdata postgresql gettext-base wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev && rm -rf /var/lib/apt/lists/*
 
 RUN /pd_build/nodejs.sh
 

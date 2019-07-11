@@ -1,7 +1,7 @@
 version: '3'
 services:
   et:
-    image: 'et_full_system:0.1.17'
+    image: 'et_full_system:0.1.57'
     build:
       context: ../
       dockerfile: docker/Dockerfile
