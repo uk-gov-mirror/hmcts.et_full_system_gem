@@ -17,9 +17,10 @@ module EtFullSystem
             env_vars = ["SERVER_ARGS='#{server_args.join(' ')}'"]
             if options.ccd_docker?
               env_vars << "CCD_AUTH_BASE_URL=http://#{options.ccd_docker_host}:4502"
-              env_vars << "CCD_IDAM_BASE_URL=http://#{options.ccd_docker_host}:4501"
+              env_vars << "CCD_IDAM_BASE_URL=http://#{options.ccd_docker_host}:5000"
               env_vars << "CCD_DATA_STORE_BASE_URL=http://#{options.ccd_docker_host}:4452"
-              env_vars << "CCD_USE_SIDAM=false"
+              env_vars << "CCD_SIDAM_USERNAME=m@m.com"
+              env_vars << "CCD_SIDAM_PASSWORD=Pa55word11"
             end
 
             gem_root = File.absolute_path('../../../..', __dir__)
