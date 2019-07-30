@@ -5,3 +5,4 @@ deploy:
   on:
     tags: true
   gem: et_full_system
+install:
