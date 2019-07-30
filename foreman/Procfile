@@ -8,7 +8,7 @@ api_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_fo
 admin_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url admin http://localhost:${PORT} && cd systems/admin && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_admin.env ./run.sh"
 atos_api_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url atos_api http://localhost:${PORT} && cd systems/atos && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_atos.env ./run.sh"
 s3_web: bash --login -c "godotenv -f ${FOREMAN_PATH}/minio.env minio server ${MINIO_STORAGE_PATH}"
-azure_blob_web: bash --login -c "azurite -l ${AZURITE_STORAGE_PATH}"
+azure_blob_web: bash --login -c "azurite -l ${AZURITE_STORAGE_PATH}" -d ${AZURITE_STORAGE_PATH}/debug.log
 fake_acas_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url fake_acas http://localhost:${PORT} && rvm use && et_fake_acas_server --port=$PORT --threads=1:5"
 fake_ccd_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url fake_ccd http://localhost:${PORT} && rvm use && et_fake_ccd start --port=$PORT"
 et_ccd_export_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && cd systems/et_ccd_export && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_ccd_export.env ./run_sidekiq.sh"

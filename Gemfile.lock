@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    et_full_system (0.1.60)
+    et_full_system (0.1.61)
       aws-sdk-s3 (~> 1.9)
       azure-storage (~> 0.15.0.preview)
       dotenv (~> 2.7, >= 2.7.2)
@@ -23,8 +23,8 @@ GEM
     addressable (2.6.0)
       public_suffix (>= 2.0.2, < 4.0)
     aws-eventstream (1.0.3)
-    aws-partitions (1.193.0)
-    aws-sdk-core (3.61.1)
+    aws-partitions (1.194.0)
+    aws-sdk-core (3.61.2)
       aws-eventstream (~> 1.0, >= 1.0.2)
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.1)
@@ -57,7 +57,7 @@ GEM
       ruby-mcrypt (~> 0.2)
       sinatra (~> 2.0, >= 2.0.3)
       sinatra-contrib (~> 2.0)
-    et_fake_ccd (0.1.15)
+    et_fake_ccd (0.1.17)
       activemodel (~> 5.2, >= 5.2.3)
       puma (~> 3.12)
       roda (~> 3.21)
