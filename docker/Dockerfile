@@ -55,7 +55,7 @@ RUN bash -lc "wget https://github.com/containous/traefik/releases/download/v1.7.
 RUN bash -lc "cd /usr/local/bin && wget https://dl.minio.io/server/minio/release/linux-amd64/minio && chmod +x minio"
 
 # Install azurite
-RUN bash -lc "npm install -g azurite"
+RUN bash -lc "npm install -g azurite@2.7.0"
 
 # Install Mailhog
 RUN bash -lc "cd /usr/local/bin && wget https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64 -O mailhog && chmod +x mailhog"
