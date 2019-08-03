@@ -20,6 +20,7 @@ module EtFullSystem
               env_vars << "CCD_IDAM_BASE_URL=http://#{options.ccd_docker_host}:5000"
               env_vars << "CCD_DATA_STORE_BASE_URL=http://#{options.ccd_docker_host}:4452"
               env_vars << "CCD_DOCUMENT_STORE_BASE_URL=http://#{options.ccd_docker_host}:4506"
+              env_vars << "CCD_GATEWAY_API_URL=http://#{options.ccd_docker_host}:3453"
               env_vars << "CCD_DOCUMENT_STORE_URL_REWRITE=localhost:4506:dm-store:8080"
               env_vars << "CCD_SIDAM_USERNAME=m@m.com"
               env_vars << "CCD_SIDAM_PASSWORD=Pa55word11"
