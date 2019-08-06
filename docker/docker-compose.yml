@@ -77,13 +77,16 @@ services:
       - et_full_system
     ports:
       - "${DB_PORT:-0}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
   redis:
     image: redis
     ports:
       - "${REDIS_PORT:-0}:6379"
     networks:
       - et_full_system
-
+    volumes:
+      - redis_data:/data
 volumes:
   rvm:
   global_node_modules:
@@ -102,6 +105,9 @@ volumes:
   admin_bundle:
   api_bundle:
   atos_bundle:
+  db_data:
+  redis_data:
+
 networks:
   et_full_system:
 
