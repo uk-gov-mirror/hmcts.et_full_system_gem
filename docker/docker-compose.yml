@@ -68,6 +68,7 @@ services:
           - azure.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - atos.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - mail.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - ccd.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
 
 #command: bash -lc "cd /home/app/full_system/systems/api && REDIS_DATABASE=2 bundle exec sidekiq"
   db:
