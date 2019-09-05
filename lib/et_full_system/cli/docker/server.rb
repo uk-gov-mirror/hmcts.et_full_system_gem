@@ -24,6 +24,7 @@ module EtFullSystem
               env_vars << "CCD_DOCUMENT_STORE_URL_REWRITE=#{options.ccd_docker_host}:4506:dm-store:8080"
               env_vars << "CCD_SIDAM_USERNAME=m@m.com"
               env_vars << "CCD_SIDAM_PASSWORD=Pa55word11"
+              env_vars << "CCD_GENERATE_ETHOS_CASE_REFERENCE=true"
             end
 
             gem_root = File.absolute_path('../../../..', __dir__)
