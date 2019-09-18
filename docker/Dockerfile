@@ -53,14 +53,14 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && ln -s /etc/alternatives/java /usr/bin/java \
     && curl --location -o artifacts.zip https://gitlab.com/pdftk-java/pdftk/-/jobs/artifacts/v3.0.7/download?job=gradle \
     && unzip artifacts.zip \
-    && mv build/libs/pdftk-all.jar /root/pdftk/pdftk.jar \
+    && mv build/libs/pdftk-all.jar /usr/local/lib/pdftk.jar \
     && rm -rf build artifacts.zip \
     && apt-get remove -y unzip \
     && apt autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 # pdftk is a 2 line bash script to just call the jar file, put it in the path
 COPY docker/pdftk /usr/local/bin
-RUN chmod +x /usr/local/bin/pdftk
+RUN chmod 0755 /usr/local/bin/pdftk
 
 
 RUN /pd_build/nodejs.sh
