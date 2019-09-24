@@ -83,7 +83,7 @@ module EtFullSystem
 
     def host_ip
       result = JSON.parse `docker network inspect \`docker network list | grep docker_et_full_system | awk '{print $1}'\``
-      result.first.dig('IPAM', 'Config', 'Gateway')
+      result.first.dig('IPAM', 'Config').first['Gateway']
     end
 
     def local_service_url(port)
