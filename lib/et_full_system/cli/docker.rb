@@ -1,4 +1,5 @@
 require_relative './docker/server'
+require_relative '../os'
 require 'json'
 module EtFullSystem
   #!/usr/bin/env ruby
