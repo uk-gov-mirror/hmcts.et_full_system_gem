@@ -1,4 +1,5 @@
 require_relative './docker/server'
+require 'json'
 module EtFullSystem
   #!/usr/bin/env ruby
   # frozen_string_literal: true
@@ -61,6 +62,11 @@ module EtFullSystem
       end
     end
 
+    desc "local_service SERVICE PORT", "Configures the reverse proxy to connect to a specific port on the host machine - the URL is calculated - otherwise it is the same as update_service_url"
+    def local_service(service, port)
+      update_service_url(service, local_service_url(port))
+    end
+
     desc "service_env SERVICE", "Returns the environment variables configured for the specified service"
     def service_env(service)
       Bundler.with_original_env do
@@ -69,6 +75,25 @@ module EtFullSystem
         compose_cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
         puts compose_cmd
         exec(compose_cmd)
+      end
+    end
+
+    private
+
+    def host_ip
+      JSON.parse `docker network inspect \`docker network list | grep docker_et_full_system | awk '{print $1}'\``
+    end
+
+    def local_service_url(port)
+      case ::EtFullSystem.os
+      when :linux, :unix
+        "http://#{host_ip}:#{port}"
+      when :osx
+        "http://docker.for.mac.localhost"
+      when :windows
+        "http://docker.for.windows.localhost"
+      else
+        raise "Unknown host type - this tool only supports mac, linux and windows"
       end
     end
   end
