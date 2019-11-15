@@ -52,7 +52,7 @@ services:
       CCD_SIDAM_USERNAME: ${CCD_SIDAM_USERNAME:-m@m.com}
       CCD_SIDAM_PASSWORD: ${CCD_SIDAM_PASSWORD:-p}
       CCD_GENERATE_ETHOS_CASE_REFERENCE: ${CCD_GENERATE_ETHOS_CASE_REFERENCE:-false}
-
+      AZURE_APP_INSIGHTS_KEY: ${AZURE_APP_INSIGHTS_KEY:-2ac37587-9187-4ec1-97a4-d12ba26bc0fc}
     command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server --azurite-storage-path=/home/app/azure_storage_data --minio-storage-path=/home/app/minio_data ${SERVER_ARGS}"
     links:
       - "db"
