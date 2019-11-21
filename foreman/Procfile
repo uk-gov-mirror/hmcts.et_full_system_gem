@@ -4,7 +4,7 @@ et1_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_fo
 et3_web:  bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url et3 http://localhost:${PORT} && cd systems/et3 && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et3.env ./run.sh"
 mail_web: bash --login -c "source ./mailhog.env && mailhog &> /dev/null"
 api_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url api http://localhost:${PORT} && cd systems/api && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_api.env ./run.sh"
-api_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && cd systems/api && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_api_sidekiq.env ./run_sidekiq.sh"
+api_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && cd systems/api && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_api.env ./run_sidekiq.sh"
 admin_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url admin http://localhost:${PORT} && cd systems/admin && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_admin.env ./run.sh"
 atos_api_web: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url atos_api http://localhost:${PORT} && cd systems/atos && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_atos.env ./run.sh"
 s3_web: bash --login -c "godotenv -f ${FOREMAN_PATH}/minio.env minio server ${MINIO_STORAGE_PATH}"
