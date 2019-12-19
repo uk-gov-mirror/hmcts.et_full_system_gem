@@ -106,7 +106,7 @@ RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/
 USER app
 
 RUN bash --login -c "rvm --default use 2.5.1"
-RUN bash --login -c "gem install bundler"
+RUN bash --login -c "gem install bundler --version 2.0.2"
 
 # Install gems required outside of any bundle.
 RUN bash --login -c "rvm use && gem install dotenv et_full_system et_fake_acas_server invoker"
