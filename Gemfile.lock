@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    et_full_system (1.0.0.pre)
+    et_full_system (1.0.0.pre1)
       aws-sdk-s3 (~> 1.9)
       azure-storage (~> 0.15.0.preview)
       dotenv (~> 2.7, >= 2.7.2)
@@ -13,14 +13,13 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (6.0.2.1)
-      activesupport (= 6.0.2.1)
-    activesupport (6.0.2.1)
+    activemodel (5.2.4.1)
+      activesupport (= 5.2.4.1)
+    activesupport (5.2.4.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-      zeitwerk (~> 2.2)
     addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
     aws-eventstream (1.0.3)
@@ -51,10 +50,10 @@ GEM
     backports (3.15.0)
     concurrent-ruby (1.1.5)
     dotenv (2.7.5)
-    et_fake_acas_server (0.1.8)
-      activesupport (>= 5.2)
+    et_fake_acas_server (0.1.6)
+      activesupport (~> 5.2)
       nokogiri (~> 1.8, >= 1.8.2)
-      puma (~> 4.1)
+      puma (~> 3.12)
       ruby-mcrypt (~> 0.2)
       sinatra (~> 2.0, >= 2.0.3)
       sinatra-contrib (~> 2.0)
@@ -88,12 +87,10 @@ GEM
     multi_xml (0.6.0)
     multipart-post (2.1.1)
     mustermann (1.0.3)
-    nio4r (2.5.2)
     nokogiri (1.10.7)
       mini_portile2 (~> 2.4.0)
     public_suffix (4.0.1)
-    puma (4.3.1)
-      nio4r (~> 2.0)
+    puma (3.12.2)
     rack (2.0.8)
     rack-protection (2.0.7)
       rack
@@ -120,7 +117,6 @@ GEM
     tilt (2.0.10)
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
-    zeitwerk (2.2.2)
 
 PLATFORMS
   ruby
