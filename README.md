@@ -22,7 +22,7 @@ so that all services can be accessed using a standard subdomain based url system
 * et1.et.127.0.0.1.nip.io:3100 For ET1
 * et1.et.127.0.0.1.nip.io:3100 For ET1
 
-The services are run all together using 'forego' (like foreman - runs a Procfile) and once the port number for each
+The services are run all together using 'invoker' (like foreman - runs a Procfile) and once the port number for each
 service is known, traefik is told about it - so it all just works.
 
 There are other services as well that are run - which are there for testing - these are :-
@@ -52,6 +52,7 @@ To run without docker, you need a few tools
 * Minio (https://github.com/minio/minio)
 * Azurite (https://github.com/Azure/Azurite)
 * godotenv (https://github.com/joho/godotenv)
+* freeport (https://github.com/phayes/freeport)
 
 I will not include installation instructions here for them - please visit their web sites and install them on your platform.
 For OSX users check out the homebrew repository - there are formulas for some of these.

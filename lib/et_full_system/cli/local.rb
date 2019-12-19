@@ -95,7 +95,7 @@ module EtFullSystem
       puts "Starting Procfile"
       ::Bundler.with_original_env do
         concurrency = " -c #{procfile_concurrency_without(options[:without]).join(',')}"
-        cmd = "CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman forego start -f \"#{GEM_PATH}/foreman/Procfile\" -e \"#{GEM_PATH}/foreman/.env\" -r#{concurrency}"
+        cmd = "CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/Procfile\" --port=4000"
         STDERR.puts cmd
         exec(cmd)
       end
