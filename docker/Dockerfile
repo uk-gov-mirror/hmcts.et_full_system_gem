@@ -1,7 +1,7 @@
 FROM phusion/passenger-customizable:0.9.34
 # Set correct environment variables.
 ENV HOME /root
-
+ARG GEM_VERSION=>0
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
 
@@ -68,9 +68,8 @@ RUN /pd_build/nodejs.sh
 # Enable the Redis service.
 RUN rm -f /etc/service/redis/down
 
-# Install go, then freeport, then remove go
-RUN apt-get update && apt-get -y install --no-install-recommends golang && export GOPATH=/home/app/go && mkdir -p /home/app/go && go get github.com/phayes/freeport && apt-get -y remove golang && apt -y autoremove && rm -rf /var/lib/apt/lists/* && cp /home/app/go/bin/freeport /usr/bin/ && rm -rf /home/app/go
-
+# Install freeport
+RUN  wget https://github.com/phayes/freeport/releases/download/1.0.2/freeport_1.0.2_linux_amd64.deb && dpkg -i freeport_1.0.2_linux_amd64.deb && rm freeport_1.0.2_linux_amd64.deb
 # Install traefik (For front end reverse proxy)
 RUN bash -lc "wget https://github.com/containous/traefik/releases/download/v1.7.10/traefik_linux-amd64 && mv ./traefik_linux-amd64 /usr/bin/traefik && chmod +x /usr/bin/traefik"
 
@@ -106,10 +105,10 @@ RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/
 USER app
 
 RUN bash --login -c "rvm --default use 2.5.1"
-RUN bash --login -c "gem install bundler --version 2.0.2"
+RUN bash --login -c "gem install bundler --version 1.17.3"
 
 # Install gems required outside of any bundle.
-RUN bash --login -c "rvm use && gem install dotenv et_full_system et_fake_acas_server invoker"
+RUN bash --login -c "rvm use && gem install dotenv et_fake_acas_server invoker && gem install et_full_system --version=$GEM_VERSION"
 
 WORKDIR /home/app/full_system
 

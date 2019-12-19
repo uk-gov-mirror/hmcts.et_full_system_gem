@@ -1,10 +1,12 @@
 version: '3'
 services:
   et:
-    image: 'et_full_system:0.1.57'
+    image: 'et_full_system:${GEM_VERSION:-unknown}'
     build:
       context: ../
       dockerfile: docker/Dockerfile
+      args:
+        GEM_VERSION:
 
     ports:
       - '${SERVER_PORT:-3100}:${SERVER_PORT:-3100}'
