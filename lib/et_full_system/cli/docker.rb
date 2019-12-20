@@ -38,6 +38,16 @@ module EtFullSystem
       end
     end
 
+    desc "invoker", "Provides access to the invoker system running inside docker"
+    def invoker(*args)
+      Bundler.with_original_env do
+        gem_root = File.absolute_path('../../..', __dir__)
+        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et bash -lc \"invoker #{args.join(' ')}\""
+        puts cmd
+        exec(cmd)
+      end
+    end
+
     desc "reset", "Bring down the server, remove all caches, rebuild the Dockerfile etc..."
     def reset
       Bundler.with_original_env do
@@ -75,11 +85,24 @@ module EtFullSystem
         cmd = "/bin/bash --login -c \"et_full_system local service_env #{service}\""
         compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
         puts compose_cmd
-        exec(compose_cmd)
+        result = `#{compose_cmd}`
+        replace_db_host_port(result)
+        replace_redis_host_port(result)
+        replace_smtp_host_port(result)
+        puts result
       end
     end
 
     private
+
+    def run_compose_command(*args, silent: false)
+      Bundler.with_original_env do
+        gem_root = File.absolute_path('../../..', __dir__)
+        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
+        puts cmd unless silent
+        `#{cmd}`
+      end
+    end
 
     def host_ip
       result = JSON.parse `docker network inspect \`docker network list | grep docker_et_full_system | awk '{print $1}'\``
@@ -97,6 +120,36 @@ module EtFullSystem
       else
         raise "Unknown host type - this tool only supports mac, linux and windows"
       end
+    end
+
+    def replace_db_host_port(env)
+      env.gsub!(/^DB_HOST=.*$/, 'DB_HOST=localhost')
+      env.gsub!(/^DB_PORT=.*$/, "DB_PORT=#{db_port}")
+    end
+
+    def replace_redis_host_port(env)
+      env.gsub!(/^REDIS_HOST=.*$/, 'REDIS_HOST=localhost')
+      env.gsub!(/^REDIS_PORT=.*$/, "REDIS_PORT=#{redis_port}")
+    end
+
+    def replace_smtp_host_port(env)
+      env.gsub!(/^SMTP_HOSTNAME=.*$/, 'SMTP_HOSTNAME=localhost')
+      env.gsub!(/^SMTP_PORT=.*$/, "SMTP_PORT=#{smtp_port}")
+    end
+
+    def db_port
+      result = run_compose_command :port, :db, 5432
+      result.split(':').last.strip
+    end
+
+    def redis_port
+      result = run_compose_command :port, :redis, 6379
+      result.split(':').last.strip
+    end
+
+    def smtp_port
+      result = run_compose_command :port, :et, 1025
+      result.split(':').last.strip
     end
   end
 end

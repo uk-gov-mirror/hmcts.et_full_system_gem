@@ -28,7 +28,7 @@ module EtFullSystem
             end
 
             gem_root = File.absolute_path('../../../..', __dir__)
-            cmd = "#{env_vars.join(' ')} docker-compose -f #{gem_root}/docker/docker-compose.yml up #{args.join(' ')}"
+            cmd = "GEM_VERSION=#{EtFullSystem::VERSION} #{env_vars.join(' ')} docker-compose -f #{gem_root}/docker/docker-compose.yml up #{args.join(' ')}"
             puts cmd
             exec(cmd)
           end
@@ -38,7 +38,7 @@ module EtFullSystem
         def down(*args)
           ::Bundler.with_original_env do
             gem_root = File.absolute_path('../../../..', __dir__)
-            cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
+            cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
             puts cmd
             exec(cmd)
           end

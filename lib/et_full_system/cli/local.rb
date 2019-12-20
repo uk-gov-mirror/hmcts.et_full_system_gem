@@ -146,7 +146,8 @@ module EtFullSystem
       parsed.each_pair do |name, value|
         puts "#{name}=#{value}"
       end
-
+    rescue KeyError
+      puts "The service must be one of #{lookup.keys}"
     end
 
     private
