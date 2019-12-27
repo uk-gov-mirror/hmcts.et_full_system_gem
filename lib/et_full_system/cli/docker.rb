@@ -84,7 +84,6 @@ module EtFullSystem
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"et_full_system local service_env #{service}\""
         compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
-        puts compose_cmd
         result = `#{compose_cmd}`
         replace_db_host_port(result)
         replace_redis_host_port(result)
@@ -138,17 +137,17 @@ module EtFullSystem
     end
 
     def db_port
-      result = run_compose_command :port, :db, 5432
+      result = run_compose_command :port, :db, 5432, silent: true
       result.split(':').last.strip
     end
 
     def redis_port
-      result = run_compose_command :port, :redis, 6379
+      result = run_compose_command :port, :redis, 6379, silent: true
       result.split(':').last.strip
     end
 
     def smtp_port
-      result = run_compose_command :port, :et, 1025
+      result = run_compose_command :port, :et, 1025, silent: true
       result.split(':').last.strip
     end
   end
