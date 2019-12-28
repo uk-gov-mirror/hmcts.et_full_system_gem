@@ -1,7 +1,7 @@
 version: '3'
 services:
   et:
-    image: 'et_full_system:${GEM_VERSION:-unknown}'
+    image: 'et_full_system:1.0.0.pre'
     build:
       context: ../
       dockerfile: docker/Dockerfile

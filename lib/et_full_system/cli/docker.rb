@@ -39,12 +39,13 @@ module EtFullSystem
     end
 
     desc "invoker", "Provides access to the invoker system running inside docker"
-    def invoker(*args)
+    def invoker(*args, show_output: true, show_command: true)
       Bundler.with_original_env do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et bash -lc \"invoker #{args.join(' ')}\""
-        puts cmd
-        exec(cmd)
+        puts cmd if show_command
+        result = `#{cmd}`
+        puts result if show_output
       end
     end
 
@@ -69,13 +70,33 @@ module EtFullSystem
         cmd = "/bin/bash --login -c \"et_full_system local update_service_url #{service} #{url}\""
         compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
         puts compose_cmd
-        exec(compose_cmd)
+        `#{compose_cmd}`
       end
     end
 
     desc "local_service SERVICE PORT", "Configures the reverse proxy to connect to a specific port on the host machine - the URL is calculated - otherwise it is the same as update_service_url"
     def local_service(service, port)
       update_service_url(service, local_service_url(port))
+    end
+
+    desc "local_et1 PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the web server and sidekiq locally"
+    def local_et1(port)
+      local_service('et1', port)
+      invoker 'remove', 'et1_web'
+      invoker 'remove', 'et1_sidekiq'
+      puts "ET1 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et1_env > .env.local'"
+    end
+
+    desc "reset_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def reset_et1
+      invoker 'add', 'et1_web'
+      invoker 'add', 'et1_sidekiq'
+      puts "ET1 is now being hosted from inside docker container"
+    end
+
+    desc "et1_env", "Shows et1's environment variables as they should be on a developers machine running locally"
+    def et1_env
+      service_env('et1')
     end
 
     desc "service_env SERVICE", "Returns the environment variables configured for the specified service"
