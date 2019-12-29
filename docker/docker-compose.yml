@@ -119,6 +119,44 @@ services:
       - HUB_PORT=4444
     networks:
       - et_full_system
+  zalenium:
+    image: "dosel/zalenium"
+    container_name: zalenium
+    hostname: zalenium
+    tty: true
+    volumes:
+      - zalenium_videos:/home/seluser/videos
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 4444:4444
+    networks:
+      - et_full_system
+    command: >
+      start --desiredContainers 2
+            --maxDockerSeleniumContainers 8
+            --screenWidth 1024 --screenHeight 768
+            --timeZone "Europe/Berlin"
+            --videoRecordingEnabled false
+            --sauceLabsEnabled false
+            --browserStackEnabled false
+            --testingBotEnabled false
+            --cbtEnabled false
+            --lambdaTestEnabled false
+            --startTunnel false
+    environment:
+      - HOST_UID
+      - HOST_GID
+      - SAUCE_USERNAME
+      - SAUCE_ACCESS_KEY
+      - BROWSER_STACK_USER
+      - BROWSER_STACK_KEY
+      - TESTINGBOT_KEY
+      - TESTINGBOT_SECRET
+      - CBT_USERNAME
+      - CBT_AUTHKEY
+      - LT_USERNAME
+      - LT_ACCESS_KEY
+      - PULL_SELENIUM_IMAGE=true
 volumes:
   rvm:
   global_node_modules:
@@ -139,6 +177,7 @@ volumes:
   atos_bundle:
   db_data:
   redis_data:
+  zalenium_videos:
 
 networks:
   et_full_system:

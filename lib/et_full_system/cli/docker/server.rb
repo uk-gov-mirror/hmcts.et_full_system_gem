@@ -36,7 +36,9 @@ module EtFullSystem
               extra_args.concat(["--scale firefox=#{options.firefox_instances}"])
             else
               extra_args.concat(['--scale selenium-hub=0', '--scale chrome=0', '--scale firefox=0'])
-
+            end
+            unless options.with_test? && !options.use_selenium?
+              extra_args.concat(['--scale zalenium=0'])
             end
             gem_root = File.absolute_path('../../../..', __dir__)
             cmd = "GEM_VERSION=#{EtFullSystem::VERSION} #{env_vars.join(' ')} docker-compose -f #{gem_root}/docker/docker-compose.yml up #{(extra_args + args).join(' ')}"
