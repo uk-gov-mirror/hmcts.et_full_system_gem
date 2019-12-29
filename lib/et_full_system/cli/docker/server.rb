@@ -10,7 +10,10 @@ module EtFullSystem
         method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, s3_web, azure_blob_web, fake_acas_web, fake_ccd_web"
         method_option :ccd_docker, type: :boolean, default: false, aliases: 'ccd-docker', desc: "If specified, instead of using the built in fake ccd server, the system will connect to your local machine (see ccd-docker-host option also)"
         method_option :ccd_docker_host, type: :string, default: 'docker.for.mac.localhost', aliases: 'ccd-docker-host', desc: "Only used if ccd-docker=true.  This specifies the host name of your machine when viewed from inside the docker container.  This defaults to docker.for.mac.localhost which is suitable for mac OSX only.  Consult docker documentation for other systems"
-        method_option :with_selenium, type: :boolean, default: false, aliases: 'with-selenium'
+        method_option :with_test, type: :boolean, default: false, aliases: 'with-test'
+        method_option :use_selenium, type: :boolean, default: true, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
+        method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
+        method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
         def up(*args)
           Bundler.with_original_env do
             server_args = []
@@ -27,11 +30,16 @@ module EtFullSystem
               env_vars << "CCD_SIDAM_PASSWORD=Pa55word11"
               env_vars << "CCD_GENERATE_ETHOS_CASE_REFERENCE=true"
             end
+            extra_args = []
+            if options.with_test? && options.use_selenium?
+              extra_args.concat(["--scale chrome=#{options.chrome_instances}"])
+              extra_args.concat(["--scale firefox=#{options.firefox_instances}"])
+            else
+              extra_args.concat(['--scale selenium-hub=0', '--scale chrome=0', '--scale firefox=0'])
 
+            end
             gem_root = File.absolute_path('../../../..', __dir__)
-            files = ['docker/docker-compose.yml']
-            files << 'docker/selenium-grid.yml' if options[:with_selenium]
-            cmd = "GEM_VERSION=#{EtFullSystem::VERSION} #{env_vars.join(' ')} docker-compose #{files.map {|f| "-f #{gem_root}/#{f}"}.join(' ')} up #{args.join(' ')}"
+            cmd = "GEM_VERSION=#{EtFullSystem::VERSION} #{env_vars.join(' ')} docker-compose -f #{gem_root}/docker/docker-compose.yml up #{(extra_args + args).join(' ')}"
             puts cmd
             exec(cmd)
           end
