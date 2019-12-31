@@ -12,6 +12,8 @@ services:
       - '${SERVER_PORT:-3100}:${SERVER_PORT:-3100}'
       - '${TRAEFIX_PORT:-3200}:${TRAEFIK_PORT:-3200}'
       - '${SMTP_PORT:-1025}:${SMTP_PORT:-1025}'
+    extra_hosts:
+      - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     volumes:
       - rvm:/usr/local/rvm
       - global_node_modules:/usr/lib/node_modules
@@ -97,6 +99,8 @@ services:
       - "4444:4444"
     networks:
       - et_full_system
+    extra_hosts:
+      - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
   chrome:
     image: selenium/node-chrome:3.141.59-yttrium
     volumes:
@@ -106,6 +110,8 @@ services:
     environment:
       - HUB_HOST=selenium-hub
       - HUB_PORT=4444
+    extra_hosts:
+      - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     networks:
       - et_full_system
   firefox:
@@ -117,6 +123,8 @@ services:
     environment:
       - HUB_HOST=selenium-hub
       - HUB_PORT=4444
+    extra_hosts:
+      - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP:-127.255.255.255}"
     networks:
       - et_full_system
   zalenium:
@@ -129,6 +137,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 4444:4444
+    extra_hosts:
+      - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     networks:
       - et_full_system
     command: >

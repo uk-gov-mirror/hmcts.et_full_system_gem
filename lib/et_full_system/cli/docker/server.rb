@@ -19,6 +19,7 @@ module EtFullSystem
             server_args = []
             server_args << "--without=#{options[:without].join(' ')}" unless options[:without].empty?
             env_vars = ["SERVER_ARGS='#{server_args.join(' ')}'"]
+            env_vars << "LOCALHOST_FROM_DOCKER_IP=#{host_ip}"
             if options.ccd_docker?
               env_vars << "CCD_AUTH_BASE_URL=http://#{options.ccd_docker_host}:4502"
               env_vars << "CCD_IDAM_BASE_URL=http://#{options.ccd_docker_host}:5000"
@@ -51,13 +52,20 @@ module EtFullSystem
         def down(*args)
           ::Bundler.with_original_env do
             gem_root = File.absolute_path('../../../..', __dir__)
-            cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
+            cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
             puts cmd
             exec(cmd)
           end
         end
 
         default_task :up
+
+        private
+
+        def host_ip
+          result = JSON.parse `docker network inspect \`docker network list | grep docker_et_full_system | awk '{print $1}'\``
+          result.first.dig('IPAM', 'Config').first['Gateway']
+        end
       end
     end
   end
