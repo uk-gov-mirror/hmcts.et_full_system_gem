@@ -198,7 +198,7 @@ module EtFullSystem
     end
 
     def host_ip
-      result = JSON.parse `docker network inspect et_full_system`
+      result = JSON.parse `docker network inspect docker_et_full_system`
       return '0.0.0.0' if result.empty?
 
       result.first.dig('IPAM', 'Config').first['Gateway']
