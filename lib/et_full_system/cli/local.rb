@@ -139,7 +139,7 @@ module EtFullSystem
         'api' => :et_api,
         'et1' => :et1,
         'et3' => :et3,
-        'et_ccd_export' => :et_ccd_export_sidekiq
+        'et_ccd_export' => :et_ccd_export
       }
       file = lookup.fetch(service)
       parsed = Dotenv.parse("#{GEM_PATH}/foreman/.env", "#{GEM_PATH}/foreman/#{file}.env")

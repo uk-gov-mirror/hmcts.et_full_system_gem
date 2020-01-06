@@ -99,6 +99,23 @@ module EtFullSystem
       service_env('et1')
     end
 
+    desc "local_ccd_export", "Disables the sidekiq process in the invoker system to allow a developer to run it locally"
+    def local_ccd_export
+      invoker 'remove', 'et_ccd_export_sidekiq'
+      puts "ccd_export is now expected to be running on your machine. To configure your environment, run 'et_full_system docker ccd_export_env > .env.local'"
+    end
+
+    desc "reset_ccd_export", "Configures invoker to use the internal systems instead of local"
+    def reset_ccd_export
+      invoker 'add', 'et_ccd_export_sidekiq'
+      puts "ccd_export is now being run from inside docker container"
+    end
+
+    desc "ccd_export_env", "Shows ccd_export's environment variables as they should be on a developers machine running locally"
+    def ccd_export_env
+      service_env('et_ccd_export')
+    end
+
     desc "local_api PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the web server and sidekiq locally"
     def local_api(port)
       local_service('api', port)
