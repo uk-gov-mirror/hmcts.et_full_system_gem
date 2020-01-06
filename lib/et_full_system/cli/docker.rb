@@ -117,6 +117,24 @@ module EtFullSystem
       service_env('admin')
     end
 
+    desc "local_et3 PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the et3 web server locally"
+    def local_et3(port)
+      local_service('et3', port)
+      invoker 'remove', 'et3_web'
+      puts "ET3 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et3_env > .env.local'"
+    end
+
+    desc "reset_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def reset_et3
+      invoker 'add', 'et3_web'
+      puts "ET3 is now being hosted from inside docker container"
+    end
+
+    desc "et1_env", "Shows et1's environment variables as they should be on a developers machine running locally"
+    def et3_env
+      service_env('et3')
+    end
+
     desc "service_env SERVICE", "Returns the environment variables configured for the specified service"
     def service_env(service)
       Bundler.with_original_env do
