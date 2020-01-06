@@ -99,6 +99,26 @@ module EtFullSystem
       service_env('et1')
     end
 
+    desc "local_api PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the web server and sidekiq locally"
+    def local_api(port)
+      local_service('api', port)
+      invoker 'remove', 'api_web'
+      invoker 'remove', 'api_sidekiq'
+      puts "api is now expected to be hosted on port #{port} on your machine. Also, you must provide your own sidekiq. To configure your environment, run 'et_full_system docker api_env > .env.local'"
+    end
+
+    desc "reset_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def reset_api
+      invoker 'add', 'api_web'
+      invoker 'add', 'api_sidekiq'
+      puts "api is now being hosted from inside docker container"
+    end
+
+    desc "api_env", "Shows api's environment variables as they should be on a developers machine running locally"
+    def api_env
+      service_env('api')
+    end
+
     desc "local_admin PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the admin web server locally"
     def local_admin(port)
       local_service('admin', port)
@@ -112,7 +132,7 @@ module EtFullSystem
       puts "Admin is now being hosted from inside docker container"
     end
 
-    desc "et1_env", "Shows et1's environment variables as they should be on a developers machine running locally"
+    desc "admin_env", "Shows admin's environment variables as they should be on a developers machine running locally"
     def admin_env
       service_env('admin')
     end
@@ -130,7 +150,7 @@ module EtFullSystem
       puts "ET3 is now being hosted from inside docker container"
     end
 
-    desc "et1_env", "Shows et1's environment variables as they should be on a developers machine running locally"
+    desc "et3_env", "Shows et3's environment variables as they should be on a developers machine running locally"
     def et3_env
       service_env('et3')
     end
