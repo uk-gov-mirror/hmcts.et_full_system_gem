@@ -99,6 +99,24 @@ module EtFullSystem
       service_env('et1')
     end
 
+    desc "local_admin PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the admin web server locally"
+    def local_admin(port)
+      local_service('admin', port)
+      invoker 'remove', 'admin_web'
+      puts "Admin is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker admin_env > .env.local'"
+    end
+
+    desc "reset_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def reset_admin
+      invoker 'add', 'admin_web'
+      puts "Admin is now being hosted from inside docker container"
+    end
+
+    desc "et1_env", "Shows et1's environment variables as they should be on a developers machine running locally"
+    def admin_env
+      service_env('admin')
+    end
+
     desc "service_env SERVICE", "Returns the environment variables configured for the specified service"
     def service_env(service)
       Bundler.with_original_env do
