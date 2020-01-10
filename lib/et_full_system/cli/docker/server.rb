@@ -31,7 +31,18 @@ module EtFullSystem
               env_vars << "CCD_SIDAM_PASSWORD=Pa55word11"
               env_vars << "CCD_GENERATE_ETHOS_CASE_REFERENCE=true"
             end
-
+            extra_args = []
+            if options.with_test? && options.use_selenium?
+              extra_args.concat(["--scale chrome=#{options.chrome_instances}"])
+              extra_args.concat(["--scale firefox=#{options.firefox_instances}"])
+            else
+              extra_args.concat(['--scale selenium-hub=0', '--scale chrome=0', '--scale firefox=0'])
+            end
+            unless options.with_test? && !options.use_selenium?
+              extra_args.concat(['--scale zalenium=0'])
+            end
+            env_vars << "DB_PORT=#{ENV.fetch('DB_PORT', EtFullSystem.is_port_open?(5432) ? 0 : 5432)}"
+            env_vars << "REDIS_PORT=#{ENV.fetch('REDIS_PORT', EtFullSystem.is_port_open?(6379) ? 0 : 6379)}"
             gem_root = File.absolute_path('../../../..', __dir__)
             cmd = "#{env_vars.join(' ')} docker-compose -f #{gem_root}/docker/docker-compose.yml up #{args.join(' ')}"
             puts cmd
