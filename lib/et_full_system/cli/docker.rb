@@ -110,5 +110,35 @@ module EtFullSystem
         raise "Unknown host type - this tool only supports mac, linux and windows"
       end
     end
+
+    def replace_db_host_port(env)
+      env.gsub!(/^DB_HOST=.*$/, 'DB_HOST=localhost')
+      env.gsub!(/^DB_PORT=.*$/, "DB_PORT=#{db_port}")
+    end
+
+    def replace_redis_host_port(env)
+      env.gsub!(/^REDIS_HOST=.*$/, 'REDIS_HOST=localhost')
+      env.gsub!(/^REDIS_PORT=.*$/, "REDIS_PORT=#{redis_port}")
+    end
+
+    def replace_smtp_host_port(env)
+      env.gsub!(/^SMTP_HOSTNAME=.*$/, 'SMTP_HOSTNAME=localhost')
+      env.gsub!(/^SMTP_PORT=.*$/, "SMTP_PORT=#{smtp_port}")
+    end
+
+    def db_port
+      result = run_compose_command :port, :db, 5432, silent: true
+      result.split(':').last.strip
+    end
+
+    def redis_port
+      result = run_compose_command :port, :redis, 6379, silent: true
+      result.split(':').last.strip
+    end
+
+    def smtp_port
+      result = run_compose_command :port, :et, 1025, silent: true
+      result.split(':').last.strip
+    end
   end
 end
