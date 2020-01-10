@@ -22,7 +22,7 @@ module EtFullSystem
       Bundler.with_original_env do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"cd /home/app/full_system && et_full_system docker bootstrap && et_full_system local setup\""
-        compose_cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml run --rm et #{cmd}"
+        compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml run --rm et #{cmd}"
         puts compose_cmd
         exec(compose_cmd)
       end
@@ -32,7 +32,7 @@ module EtFullSystem
     def compose(*args)
       Bundler.with_original_env do
         gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
+        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
         puts cmd
         exec(cmd)
       end
@@ -42,10 +42,10 @@ module EtFullSystem
     def reset
       Bundler.with_original_env do
         gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml down -v"
+        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down -v"
         puts cmd
         next unless system(cmd)
-        cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml build --no-cache"
+        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml build --no-cache"
         puts cmd
         next unless system(cmd)
         self.class.start(['setup'])
@@ -57,7 +57,7 @@ module EtFullSystem
       Bundler.with_original_env do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"et_full_system local update_service_url #{service} #{url}\""
-        compose_cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
+        compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
         puts compose_cmd
         exec(compose_cmd)
       end
@@ -73,13 +73,25 @@ module EtFullSystem
       Bundler.with_original_env do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"et_full_system local service_env #{service}\""
-        compose_cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
-        puts compose_cmd
-        exec(compose_cmd)
+        compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
+        result = `#{compose_cmd}`
+        replace_db_host_port(result)
+        replace_redis_host_port(result)
+        replace_smtp_host_port(result)
+        puts result
       end
     end
 
     private
+
+    def run_compose_command(*args, silent: false)
+      Bundler.with_original_env do
+        gem_root = File.absolute_path('../../..', __dir__)
+        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
+        puts cmd unless silent
+        `#{cmd}`
+      end
+    end
 
     def host_ip
       result = JSON.parse `docker network inspect \`docker network list | grep docker_et_full_system | awk '{print $1}'\``
