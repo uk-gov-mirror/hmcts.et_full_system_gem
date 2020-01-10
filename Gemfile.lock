@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    et_full_system (1.0.0.pre48)
+    et_full_system (1.0.0.pre49)
       aws-sdk-s3 (~> 1.9)
       azure-storage (~> 0.15.0.preview)
       dotenv (~> 2.7, >= 2.7.2)
@@ -72,7 +72,7 @@ GEM
     httparty (0.17.3)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
-    i18n (1.7.1)
+    i18n (1.8.0)
       concurrent-ruby (~> 1.0)
     iodine (0.7.38)
     jmespath (1.4.0)

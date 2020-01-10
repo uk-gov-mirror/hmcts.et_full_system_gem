@@ -14,12 +14,14 @@ module EtFullSystem
         method_option :use_selenium, type: :boolean, default: true, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
         method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
         method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
+        method_option :record_video, type: :boolean, default: true, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
         def up(*args)
           Bundler.with_original_env do
             server_args = []
             server_args << "--without=#{options[:without].join(' ')}" unless options[:without].empty?
             env_vars = ["SERVER_ARGS='#{server_args.join(' ')}'"]
             env_vars << "LOCALHOST_FROM_DOCKER_IP=#{host_ip}"
+            env_vars << "RECORD_VIDEO=#{options.record_video?}"
             if options.ccd_docker?
               env_vars << "CCD_AUTH_BASE_URL=http://#{options.ccd_docker_host}:4502"
               env_vars << "CCD_IDAM_BASE_URL=http://#{options.ccd_docker_host}:5000"
