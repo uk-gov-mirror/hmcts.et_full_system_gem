@@ -5,6 +5,8 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+      args:
+        GEM_VERSION:
 
     ports:
       - '${SERVER_PORT:-3100}:${SERVER_PORT:-3100}'

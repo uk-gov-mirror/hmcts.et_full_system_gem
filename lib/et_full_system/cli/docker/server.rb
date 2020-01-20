@@ -46,7 +46,7 @@ module EtFullSystem
             env_vars << "DB_PORT=#{ENV.fetch('DB_PORT', EtFullSystem.is_port_open?(5432) ? 0 : 5432)}"
             env_vars << "REDIS_PORT=#{ENV.fetch('REDIS_PORT', EtFullSystem.is_port_open?(6379) ? 0 : 6379)}"
             gem_root = File.absolute_path('../../../..', __dir__)
-            cmd = "#{env_vars.join(' ')} docker-compose -f #{gem_root}/docker/docker-compose.yml up #{args.join(' ')}"
+            cmd = "GEM_VERSION=#{EtFullSystem::VERSION} #{env_vars.join(' ')} docker-compose -f #{gem_root}/docker/docker-compose.yml up #{(extra_args + args).join(' ')}"
             puts cmd
             exec(cmd)
           end
