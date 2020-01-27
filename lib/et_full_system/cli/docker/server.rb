@@ -14,7 +14,7 @@ module EtFullSystem
         method_option :use_selenium, type: :boolean, default: false, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
         method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
         method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
-        method_option :record_video, type: :boolean, default: true, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
+        method_option :record_video, type: :boolean, default: false, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
         def up(*args)
           Bundler.with_original_env do
             server_args = []
