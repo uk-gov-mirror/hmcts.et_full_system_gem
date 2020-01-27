@@ -15,9 +15,11 @@ module EtFullSystem
         method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
         method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
         method_option :record_video, type: :boolean, default: false, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
+        method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
         def up(*args)
           Bundler.with_original_env do
             server_args = []
+            server_args << "--minimal" if options.minimal?
             server_args << "--without=#{options[:without].join(' ')}" unless options[:without].empty?
             env_vars = ["SERVER_ARGS='#{server_args.join(' ')}'"]
             env_vars << "LOCALHOST_FROM_DOCKER_IP=#{host_ip}"
