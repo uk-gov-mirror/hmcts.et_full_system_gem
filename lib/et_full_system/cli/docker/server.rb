@@ -11,7 +11,7 @@ module EtFullSystem
         method_option :ccd_docker, type: :boolean, default: false, aliases: 'ccd-docker', desc: "If specified, instead of using the built in fake ccd server, the system will connect to your local machine (see ccd-docker-host option also)"
         method_option :ccd_docker_host, type: :string, default: 'docker.for.mac.localhost', aliases: 'ccd-docker-host', desc: "Only used if ccd-docker=true.  This specifies the host name of your machine when viewed from inside the docker container.  This defaults to docker.for.mac.localhost which is suitable for mac OSX only.  Consult docker documentation for other systems"
         method_option :with_test, type: :boolean, default: false, aliases: 'with-test'
-        method_option :use_selenium, type: :boolean, default: true, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
+        method_option :use_selenium, type: :boolean, default: false, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
         method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
         method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
         method_option :record_video, type: :boolean, default: true, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
