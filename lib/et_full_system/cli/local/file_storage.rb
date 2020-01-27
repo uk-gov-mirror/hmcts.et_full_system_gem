@@ -49,7 +49,7 @@ module EtFullSystem
         end
 
         def setup_azure_storage
-          Bundler.with_original_env do
+          Bundler.with_unbundled_env do
             puts `bash --login -c "cd systems/api && rvm use && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\"  bundle exec bundle exec rails configure_azure_storage_containers configure_azure_storage_cors"`
 
           end

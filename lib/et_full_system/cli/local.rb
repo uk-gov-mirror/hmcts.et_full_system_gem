@@ -94,7 +94,7 @@ module EtFullSystem
       Process.detach(pid)
 
       puts "Starting Invoker"
-      ::Bundler.with_original_env do
+      ::Bundler.with_unbundled_env do
         without = options[:without]
         if options.minimal?
           without = ['et1', 'et3', 'admin', 'api', 'ccd_export', 'atos_api']
@@ -108,10 +108,10 @@ module EtFullSystem
             "invoker remove #{proc}"
           end
           stop_cmd = stop_cmds.join(' && ')
-          puts "---------------------- DISABLING SERVICES IN 5 SECONDS ---------------------------"
+          puts "---------------------- DISABLING SERVICES IN 10 SECONDS ---------------------------"
           puts "command is #{stop_cmd}"
           Thread.new do
-            sleep 5
+            sleep 10
             puts `#{stop_cmd}`
           end
         end
@@ -132,7 +132,7 @@ module EtFullSystem
 
     desc "setup_services", "Sets up all services in one command"
     def setup_services
-      ::Bundler.with_original_env do
+      ::Bundler.with_unbundled_env do
         setup_et1_service
         setup_et3_service
         setup_api_service
@@ -177,7 +177,7 @@ module EtFullSystem
       when 'api' then ['api_web', 'api_sidekiq']
       when 'admin' then ['admin_web']
       when 'atos_api' then ['atos_api_web']
-      when 'ccd_export' then ['et_ccd_export_web']
+      when 'ccd_export' then ['et_ccd_export_sidekiq']
       else raise "Unknown service #{service}"
       end
     end
