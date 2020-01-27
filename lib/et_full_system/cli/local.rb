@@ -101,15 +101,19 @@ module EtFullSystem
         end
         cmd = "CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/Procfile\" --port=4000"
         STDERR.puts cmd
-        puts `#{cmd}`
-        return if without.empty?
-
-
-        stop_cmds = without.reduce([]) do |acc, service|
-          acc.concat(invoker_processes_for(service))
+        unless without.empty?
+          stop_cmds = without.reduce([]) do |acc, service|
+            acc.concat(invoker_processes_for(service))
+          end.map do |proc|
+            "invoker remove #{proc}"
+          end
+          stop_cmd = stop_cmds.join(' && ')
+          Thread.new do
+            sleep 5
+            puts `#{stop_cmd}`
+          end
         end
-        stop_cmd = stop_cmds.join(' && ')
-        puts `#{stop_cmd}`
+        exec cmd
       end
     end
 
@@ -163,6 +167,18 @@ module EtFullSystem
     end
 
     private
+
+    def invoker_processes_for(service)
+      case service
+      when 'et1' then ['et1_web', 'et1_sidekiq']
+      when 'et3' then ['et3_web']
+      when 'api' then ['api_web', 'api_sidekiq']
+      when 'admin' then ['admin_web']
+      when 'atos_api' then ['atos_api_web']
+      when 'ccd_export' then ['et_ccd_export_web']
+      else raise "Unknown service #{service}"
+      end
+    end
 
     def procfile_services
       File.readlines("#{GEM_PATH}/foreman/Procfile").inject([]) do |acc, line|
