@@ -108,12 +108,14 @@ module EtFullSystem
             "invoker remove #{proc}"
           end
           stop_cmd = stop_cmds.join(' && ')
+          puts "---------------------- DISABLING SERVICES IN 5 SECONDS ---------------------------"
+          puts "command is #{stop_cmd}"
           Thread.new do
             sleep 5
             puts `#{stop_cmd}`
           end
         end
-        exec cmd
+        puts `#{cmd}`
       end
     end
 
