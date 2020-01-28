@@ -40,7 +40,7 @@ module EtFullSystem
 
     desc "invoker", "Provides access to the invoker system running inside docker"
     def invoker(*args)
-      run_on_local("invoker #{args.join(' ')}")
+      puts run_on_local("invoker #{args.join(' ')}")
     end
 
     desc "reset", "Bring down the server, remove all caches, rebuild the Dockerfile etc..."
@@ -59,7 +59,7 @@ module EtFullSystem
 
     desc "update_service_url SERVICE URL", "Configures the reverse proxy to connect to a specific url for a service - note the URL must be reachable from the docker container and the server must be running"
     def update_service_url(service, url)
-      run_on_local("update_service_url #{service} #{url}\"")
+      puts run_on_local("update_service_url #{service} #{url}\"")
     end
 
     desc "local_service SERVICE PORT", "Configures the reverse proxy to connect to a specific port on the host machine - the URL is calculated - otherwise it is the same as update_service_url"
@@ -82,7 +82,7 @@ module EtFullSystem
 
     desc "local_ccd_export", "Disables the sidekiq process in the invoker system to allow a developer to run it locally"
     def local_ccd_export
-      run_on_local('disable_ccd_export')
+      puts run_on_local('disable_ccd_export')
       puts "ccd_export is now expected to be running on your machine. To configure your environment, run 'et_full_system docker ccd_export_env > .env.local'"
     end
 
@@ -139,92 +139,92 @@ module EtFullSystem
 
     desc "enable_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
     def enable_et1
-      run_on_local("enable_et1")
+      puts run_on_local("enable_et1")
     end
 
     desc "enable_ccd_export", "Configures invoker to use the internal systems instead of local"
     def enable_ccd_export
-      run_on_local("enable_ccd_export")
+      puts run_on_local("enable_ccd_export")
     end
 
     desc "enable_atos_api", "Configures invoker to use the internal systems instead of local"
     def enable_atos_api
-      run_on_local("enable_atos_api")
+      puts run_on_local("enable_atos_api")
     end
 
     desc "enable_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
     def enable_api
-      run_on_local("enable_api")
+      puts run_on_local("enable_api")
     end
 
     desc "enable_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
     def enable_admin
-      run_on_local("enable_admin")
+      puts run_on_local("enable_admin")
     end
 
     desc "enable_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
     def enable_et3
-      run_on_local("enable_et3")
+      puts run_on_local("enable_et3")
     end
 
     desc "disable_et1", "Stops et1 from running in the stack"
     def disable_et1
-      run_on_local("disable_et1")
+      puts run_on_local("disable_et1")
     end
 
     desc "disable_ccd_export", "Stops ccd_export from running in the stack"
     def disable_ccd_export
-      run_on_local("disable_ccd_export")
+      puts run_on_local("disable_ccd_export")
     end
 
     desc "disable_atos_api", "Stops atos_api running in the stack"
     def disable_atos_api
-      run_on_local("disable_atos_api")
+      puts run_on_local("disable_atos_api")
     end
 
     desc "disable_api", "Stops api from running in the stack"
     def disable_api
-      run_on_local("disable_api")
+      puts run_on_local("disable_api")
     end
 
     desc "disable_admin", "Stops admin from running in the stack"
     def disable_admin
-      run_on_local("disable_admin")
+      puts run_on_local("disable_admin")
     end
 
     desc "disable_et3", "Stops et3 from running in the stack"
     def disable_et3
-      run_on_local("disable_et3")
+      puts run_on_local("disable_et3")
     end
 
     desc "restart_et1", "Restarts the et1 application"
     def restart_et1
-      run_on_local("restart_et1")
+      puts run_on_local("restart_et1")
     end
 
     desc "restart_api", "Restarts the api application"
     def restart_api
-      run_on_local("restart_api")
+      puts run_on_local("restart_api")
     end
 
     desc "restart_et3", "Restarts the et3 application"
     def restart_et3
-      run_on_local("restart_et3")
+      puts run_on_local("restart_et3")
     end
 
     desc "restart_admin", "Restarts the admin application"
     def restart_admin
-      run_on_local("restart_admin")
+      puts run_on_local("restart_admin")
     end
 
     desc "restart_atos_api", "Restarts the atos_api application"
     def restart_atos_api
-      run_on_local("restart_atos_api")
+      puts run_on_local("restart_atos_api")
     end
 
     desc "restart_ccd_export", "Restarts the ccd_export application"
     def restart_ccd_export
-      run_on_local("restart_ccd_export")
+      puts run_on_local("restart_ccd_export")
     end
 
     private
