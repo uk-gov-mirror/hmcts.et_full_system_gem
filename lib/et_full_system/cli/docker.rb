@@ -71,7 +71,7 @@ module EtFullSystem
     def local_et1(port)
       local_service('et1', port)
       disable_et1
-      puts "ET1 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et1_env > .env.local'"
+      puts "ET1 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et1_env > .env'"
     end
 
 
@@ -83,7 +83,7 @@ module EtFullSystem
     desc "local_ccd_export", "Disables the sidekiq process in the invoker system to allow a developer to run it locally"
     def local_ccd_export
       run_on_local('disable_ccd_export')
-      puts "ccd_export is now expected to be running on your machine. To configure your environment, run 'et_full_system docker ccd_export_env > .env.local'"
+      puts "ccd_export is now expected to be running on your machine. To configure your environment, run 'et_full_system docker ccd_export_env > .env'"
     end
 
     desc "ccd_export_env", "Shows ccd_export's environment variables as they should be on a developers machine running locally"
@@ -95,7 +95,7 @@ module EtFullSystem
     def local_api(port)
       local_service('api', port)
       disable_api
-      puts "api is now expected to be hosted on port #{port} on your machine. Also, you must provide your own sidekiq. To configure your environment, run 'et_full_system docker api_env > .env.local'"
+      puts "api is now expected to be hosted on port #{port} on your machine. Also, you must provide your own sidekiq. To configure your environment, run 'et_full_system docker api_env > .env'"
     end
 
     desc "api_env", "Shows api's environment variables as they should be on a developers machine running locally"
@@ -107,7 +107,7 @@ module EtFullSystem
     def local_admin(port)
       local_service('admin', port)
       disable_admin
-      puts "Admin is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker admin_env > .env.local'"
+      puts "Admin is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker admin_env > .env'"
     end
 
     desc "admin_env", "Shows admin's environment variables as they should be on a developers machine running locally"
@@ -119,7 +119,7 @@ module EtFullSystem
     def local_et3(port)
       local_service('et3', port)
       disable_et3
-      puts "ET3 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et3_env > .env.local'"
+      puts "ET3 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et3_env > .env'"
     end
 
 
