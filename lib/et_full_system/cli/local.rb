@@ -168,6 +168,129 @@ module EtFullSystem
       puts "The service must be one of #{lookup.keys}"
     end
 
+    desc "invoker", "Provides access to the invoker system"
+    def invoker(*args)
+      cmd = "invoker #{args.join(' ')}"
+      puts cmd
+      result = `#{cmd}`
+      puts result
+      result
+    end
+
+    desc "enable_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et1
+      invoker 'add', 'et1_web'
+      invoker 'add', 'et1_sidekiq'
+      puts "ET1 is now running"
+    end
+
+    desc "enable_ccd_export", "Configures invoker to use the internal systems instead of local"
+    def enable_ccd_export
+      invoker 'add', 'et_ccd_export_sidekiq'
+      puts "ccd_export is now running"
+    end
+
+    desc "enable_atos_api", "Configures invoker to use the internal systems instead of local"
+    def enable_atos_api
+      invoker 'add', 'atos_api_web'
+      puts "atos_api is now running"
+    end
+
+    desc "enable_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_api
+      invoker 'add', 'api_web'
+      invoker 'add', 'api_sidekiq'
+      puts "api is now running"
+    end
+
+    desc "enable_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_admin
+      invoker 'add', 'admin_web'
+      puts "Admin is now running"
+    end
+
+    desc "enable_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et3
+      invoker 'add', 'et3_web'
+      puts "ET3 is now running"
+    end
+
+    desc "disable_et1", "Stops <service> from running in the stack"
+    def disable_et1
+      invoker 'remove', 'et1_web'
+      invoker 'remove', 'et1_sidekiq'
+      puts "ET1 is now stopped"
+    end
+
+    desc "disable_ccd_export", "Stops ccd_export from running in the stack"
+    def disable_ccd_export
+      invoker 'remove', 'et_ccd_export_sidekiq'
+      puts "ccd_export is now stopped"
+    end
+
+    desc "disable_atos_api", "Stops atos_api from running in the stack"
+    def disable_atos_api
+      invoker 'remove', 'atos_api_web'
+      puts "atos_api is now stopped"
+    end
+
+    desc "disable_api", "Stops api from running in the stack"
+    def disable_api
+      invoker 'remove', 'api_web'
+      invoker 'remove', 'api_sidekiq'
+      puts "api is now stopped"
+    end
+
+    desc "disable_admin", "Stops admin from running in the stack"
+    def disable_admin
+      invoker 'remove', 'admin_web'
+      puts "Admin is now stopped"
+    end
+
+    desc "disable_et3", "Stops et3 from running in the stack"
+    def disable_et3
+      invoker 'remove', 'et3_web'
+      puts "ET3 is now stopped"
+    end
+
+    desc "restart_et1", "Restarts the et1 application"
+    def restart_et1
+      invoker 'reload', 'et1_web'
+      invoker 'reload', 'et1_sidekiq'
+      puts "ET1 Has been restarted"
+    end
+
+    desc "restart_api", "Restarts the api application"
+    def restart_api
+      invoker 'reload', 'api_web'
+      invoker 'reload', 'api_sidekiq'
+      puts "api Has been restarted"
+    end
+
+    desc "restart_et3", "Restarts the et3 application"
+    def restart_et3
+      invoker 'reload', 'et3_web'
+      puts "et3 Has been restarted"
+    end
+
+    desc "restart_admin", "Restarts the admin application"
+    def restart_admin
+      invoker 'reload', 'admin_web'
+      puts "admin Has been restarted"
+    end
+
+    desc "restart_atos_api", "Restarts the atos_api application"
+    def restart_atos_api
+      invoker 'reload', 'atos_api_web'
+      puts "atos_api Has been restarted"
+    end
+
+    desc "restart_ccd_export", "Restarts the ccd_export application"
+    def restart_ccd_export
+      invoker 'reload', 'et_ccd_export_sidekiq'
+      puts "ccd_export Has been restarted"
+    end
+
     private
 
     def invoker_processes_for(service)
