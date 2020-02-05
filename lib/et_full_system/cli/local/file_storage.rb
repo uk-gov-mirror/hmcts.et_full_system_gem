@@ -19,6 +19,11 @@ module EtFullSystem
 
         private
 
+        def unbundled(&block)
+          method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_original_env
+          Bundler.send(method, &block)
+        end
+
         def setup_s3_storage
           config = {
             region: ENV.fetch('AWS_REGION', 'us-east-1'),
@@ -49,7 +54,7 @@ module EtFullSystem
         end
 
         def setup_azure_storage
-          Bundler.with_unbundled_env do
+          unbundled do
             puts `bash --login -c "cd systems/api && rvm use && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\"  bundle exec bundle exec rails configure_azure_storage_containers configure_azure_storage_cors"`
 
           end

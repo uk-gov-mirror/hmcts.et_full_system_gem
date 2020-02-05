@@ -10,7 +10,7 @@ module EtFullSystem
 
     desc "bootstrap", "Used by the docker-compose file (using sudo) - do not use yourself"
     def bootstrap
-      Bundler.with_unbundled_env do
+      unbundled do
         cmd = File.absolute_path('../../../shell_scripts/docker_bootstrap.sh', __dir__)
         puts cmd
         exec(cmd)
@@ -19,7 +19,7 @@ module EtFullSystem
 
     desc "setup", "Sets up the system for initial run - or after changing branches, adding gems etc.. in any of the services"
     def setup
-      Bundler.with_unbundled_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"cd /home/app/full_system && et_full_system docker bootstrap && et_full_system local setup\""
         compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml run --rm et #{cmd}"
@@ -30,7 +30,7 @@ module EtFullSystem
 
     desc "compose", "Provides access to the docker-compose command"
     def compose(*args)
-      Bundler.with_unbundled_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
         puts cmd
@@ -45,7 +45,7 @@ module EtFullSystem
 
     desc "reset", "Bring down the server, remove all caches, rebuild the Dockerfile etc..."
     def reset
-      Bundler.with_unbundled_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down -v"
         puts cmd
@@ -229,8 +229,13 @@ module EtFullSystem
 
     private
 
+    def unbundled(&block)
+      method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_original_env
+      Bundler.send(method, &block)
+    end
+
     def run_on_local(cmd, return_output: false)
-      Bundler.with_unbundled_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"et_full_system local #{cmd}\""
         compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
@@ -243,7 +248,7 @@ module EtFullSystem
     end
 
     def run_compose_command(*args, silent: false)
-      Bundler.with_unbundled_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
         puts cmd unless silent

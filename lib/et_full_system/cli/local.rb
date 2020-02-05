@@ -94,7 +94,7 @@ module EtFullSystem
       Process.detach(pid)
 
       puts "Starting Invoker"
-      ::Bundler.with_unbundled_env do
+      unbundled do
         without = options[:without]
         if options.minimal?
           without = ['et1', 'et3', 'admin', 'api', 'ccd_export', 'atos_api']
@@ -132,7 +132,7 @@ module EtFullSystem
 
     desc "setup_services", "Sets up all services in one command"
     def setup_services
-      ::Bundler.with_unbundled_env do
+      unbundled do
         setup_et1_service
         setup_et3_service
         setup_api_service
@@ -292,6 +292,11 @@ module EtFullSystem
     end
 
     private
+
+    def unbundled(&block)
+      method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_original_env
+      Bundler.send(method, &block)
+    end
 
     def invoker_processes_for(service)
       case service
