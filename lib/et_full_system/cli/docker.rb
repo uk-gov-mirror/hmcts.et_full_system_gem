@@ -234,7 +234,6 @@ module EtFullSystem
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"et_full_system local #{cmd}\""
         compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
-        puts compose_cmd
         if return_output
           `#{compose_cmd}`
         else
