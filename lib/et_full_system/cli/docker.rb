@@ -87,8 +87,8 @@ module EtFullSystem
       puts "ET1 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et1_env > .env.local'"
     end
 
-    desc "reset_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_et1
+    desc "enable_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et1
       invoker 'add', 'et1_web'
       invoker 'add', 'et1_sidekiq'
       puts "ET1 is now being hosted from inside docker container"
@@ -105,8 +105,8 @@ module EtFullSystem
       puts "ccd_export is now expected to be running on your machine. To configure your environment, run 'et_full_system docker ccd_export_env > .env.local'"
     end
 
-    desc "reset_ccd_export", "Configures invoker to use the internal systems instead of local"
-    def reset_ccd_export
+    desc "enable_ccd_export", "Configures invoker to use the internal systems instead of local"
+    def enable_ccd_export
       invoker 'add', 'et_ccd_export_sidekiq'
       puts "ccd_export is now being run from inside docker container"
     end
@@ -124,8 +124,8 @@ module EtFullSystem
       puts "api is now expected to be hosted on port #{port} on your machine. Also, you must provide your own sidekiq. To configure your environment, run 'et_full_system docker api_env > .env.local'"
     end
 
-    desc "reset_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_api
+    desc "enable_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_api
       invoker 'add', 'api_web'
       invoker 'add', 'api_sidekiq'
       puts "api is now being hosted from inside docker container"
@@ -143,8 +143,8 @@ module EtFullSystem
       puts "Admin is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker admin_env > .env.local'"
     end
 
-    desc "reset_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_admin
+    desc "enable_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_admin
       invoker 'add', 'admin_web'
       puts "Admin is now being hosted from inside docker container"
     end
@@ -161,8 +161,8 @@ module EtFullSystem
       puts "ET3 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et3_env > .env.local'"
     end
 
-    desc "reset_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_et3
+    desc "enable_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et3
       invoker 'add', 'et3_web'
       puts "ET3 is now being hosted from inside docker container"
     end
@@ -184,6 +184,44 @@ module EtFullSystem
         replace_smtp_host_port(result)
         puts result
       end
+    end
+
+    desc "restart_et1", "Restarts the et1 application"
+    def restart_et1
+      invoker 'reload', 'et1_web'
+      invoker 'reload', 'et1_sidekiq'
+      puts "ET1 Has been restarted"
+    end
+
+    desc "restart_api", "Restarts the api application"
+    def restart_api
+      invoker 'reload', 'api_web'
+      invoker 'reload', 'api_sidekiq'
+      puts "api Has been restarted"
+    end
+
+    desc "restart_et3", "Restarts the et3 application"
+    def restart_et3
+      invoker 'reload', 'et3_web'
+      puts "et3 Has been restarted"
+    end
+
+    desc "restart_admin", "Restarts the admin application"
+    def restart_admin
+      invoker 'reload', 'admin_web'
+      puts "admin Has been restarted"
+    end
+
+    desc "restart_atos_api", "Restarts the atos_api application"
+    def restart_atos_api
+      invoker 'reload', 'atos_api_web'
+      puts "atos_api Has been restarted"
+    end
+
+    desc "restart_ccd_export", "Restarts the ccd_export application"
+    def restart_ccd_export
+      invoker 'reload', 'et_ccd_export_sidekiq'
+      puts "ccd_export Has been restarted"
     end
 
     private
