@@ -84,6 +84,7 @@ module EtFullSystem
     method_option :minio_storage_path, default: ENV.fetch('MINIO_STORAGE_PATH', '/tmp/minio_storage'), desc: "Where to store minio data"
     method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
     method_option :cloud_provider, type: :string, default: ENV.fetch('CLOUD_PROVIDER', 'amazon')
+    method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
     def server
       puts "Scheduling traefik config and file storage config"
       pid = fork do
@@ -92,12 +93,23 @@ module EtFullSystem
       end
       Process.detach(pid)
 
-      puts "Starting Procfile"
+      puts "Starting Invoker"
       ::Bundler.with_original_env do
-        concurrency = " -c #{procfile_concurrency_without(options[:without]).join(',')}"
+        without = options[:without]
+        if options.minimal?
+          without = ['et1', 'et3', 'admin', 'api', 'ccd_export', 'atos_api']
+        end
         cmd = "CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/Procfile\" --port=4000"
         STDERR.puts cmd
-        exec(cmd)
+        puts `#{cmd}`
+        return if without.empty?
+
+
+        stop_cmds = without.reduce([]) do |acc, service|
+          acc.concat(invoker_processes_for(service))
+        end
+        stop_cmd = stop_cmds.join(' && ')
+        puts `#{stop_cmd}`
       end
     end
 
@@ -157,10 +169,6 @@ module EtFullSystem
         next if line.strip.start_with?('#')
         acc + [line.split(':').first]
       end
-    end
-
-    def procfile_concurrency_without(without)
-      procfile_services.map {|service| "#{service}=#{without.include?(service) ? 0 : 1}"}
     end
 
     def external_command(cmd, tag)
