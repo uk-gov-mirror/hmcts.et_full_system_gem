@@ -17,7 +17,7 @@ module EtFullSystem
         method_option :record_video, type: :boolean, default: false, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
         method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
         def up(*args)
-          Bundler.with_original_env do
+          Bundler.with_unbundled_env do
             server_args = []
             server_args << "--minimal" if options.minimal?
             server_args << "--without=#{options[:without].join(' ')}" unless options[:without].empty?
@@ -56,7 +56,7 @@ module EtFullSystem
 
         desc "down", "Stops the full system server on docker"
         def down(*args)
-          ::Bundler.with_original_env do
+          ::Bundler.with_unbundled_env do
             gem_root = File.absolute_path('../../../..', __dir__)
             cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
             puts cmd
