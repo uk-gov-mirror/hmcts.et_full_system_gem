@@ -111,6 +111,12 @@ module EtFullSystem
       puts "ccd_export is now being run from inside docker container"
     end
 
+    desc "enable_atos_api", "Configures invoker to use the internal systems instead of local"
+    def enable_atos_api
+      invoker 'add', 'atos_api_web'
+      puts "atos_api is now being run from inside docker container"
+    end
+
     desc "ccd_export_env", "Shows ccd_export's environment variables as they should be on a developers machine running locally"
     def ccd_export_env
       service_env('et_ccd_export')
