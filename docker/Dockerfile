@@ -2,6 +2,7 @@ FROM phusion/passenger-customizable:0.9.34
 # Set correct environment variables.
 ENV HOME /root
 ARG GEM_VERSION=>0
+ARG user_id=1000
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
 
@@ -98,8 +99,8 @@ RUN mkdir -p /home/app/full_system; chown app:app /home/app/full_system
 # Install gems and binstubs to run without bundler
 RUN mkdir -p /home/app/system_gems/et_full_system && chmod 0777 /home/app/system_gems/et_full_system && chown -R app:app /home/app/system_gems
 
-RUN usermod -o -u 1000 app
-RUN groupmod -o -g 1000 app
+RUN usermod -o -u $user_id app
+RUN groupmod -o -g $user_id app
 WORKDIR /home/app/full_system
 RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
