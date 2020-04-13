@@ -61,6 +61,7 @@ services:
       CCD_AUTH_BASE_URL: ${CCD_AUTH_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/auth}
       CCD_IDAM_BASE_URL: ${CCD_IDAM_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/idam}
       CCD_DATA_STORE_BASE_URL: ${CCD_DATA_STORE_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/data_store}
+      CCD_ECM_BASE_URL: ${CCD_ECM_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/ecm}
       CCD_DOCUMENT_STORE_BASE_URL: ${CCD_DOCUMENT_STORE_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/document_store}
       CCD_DOCUMENT_STORE_URL_REWRITE: ${CCD_DOCUMENT_STORE_URL_REWRITE:-false}
       CCD_USE_SIDAM: ${CCD_USE_SIDAM:-true}
