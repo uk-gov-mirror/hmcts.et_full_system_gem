@@ -10,7 +10,7 @@ module EtFullSystem
 
     desc "bootstrap", "Used by the docker-compose file (using sudo) - do not use yourself"
     def bootstrap
-      Bundler.with_original_env do
+      unbundled do
         cmd = File.absolute_path('../../../shell_scripts/docker_bootstrap.sh', __dir__)
         puts cmd
         exec(cmd)
@@ -19,7 +19,7 @@ module EtFullSystem
 
     desc "setup", "Sets up the system for initial run - or after changing branches, adding gems etc.. in any of the services"
     def setup
-      Bundler.with_original_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"cd /home/app/full_system && et_full_system docker bootstrap && et_full_system local setup\""
         compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml run --rm et #{cmd}"
@@ -30,7 +30,7 @@ module EtFullSystem
 
     desc "compose", "Provides access to the docker-compose command"
     def compose(*args)
-      Bundler.with_original_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
         puts cmd
@@ -39,19 +39,13 @@ module EtFullSystem
     end
 
     desc "invoker", "Provides access to the invoker system running inside docker"
-    def invoker(*args, show_output: true, show_command: true)
-      Bundler.with_original_env do
-        gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et bash -lc \"invoker #{args.join(' ')}\""
-        puts cmd if show_command
-        result = `#{cmd}`
-        puts result if show_output
-      end
+    def invoker(*args)
+      run_on_local("invoker #{args.join(' ')}")
     end
 
     desc "reset", "Bring down the server, remove all caches, rebuild the Dockerfile etc..."
     def reset
-      Bundler.with_original_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down -v"
         puts cmd
@@ -65,13 +59,7 @@ module EtFullSystem
 
     desc "update_service_url SERVICE URL", "Configures the reverse proxy to connect to a specific url for a service - note the URL must be reachable from the docker container and the server must be running"
     def update_service_url(service, url)
-      Bundler.with_original_env do
-        gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "/bin/bash --login -c \"et_full_system local update_service_url #{service} #{url}\""
-        compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
-        puts compose_cmd
-        `#{compose_cmd}`
-      end
+      run_on_local("update_service_url #{service} #{url}")
     end
 
     desc "local_service SERVICE PORT", "Configures the reverse proxy to connect to a specific port on the host machine - the URL is calculated - otherwise it is the same as update_service_url"
@@ -82,17 +70,10 @@ module EtFullSystem
     desc "local_et1 PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the web server and sidekiq locally"
     def local_et1(port)
       local_service('et1', port)
-      invoker 'remove', 'et1_web'
-      invoker 'remove', 'et1_sidekiq'
-      puts "ET1 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et1_env > .env.local'"
+      disable_et1
+      puts "ET1 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et1_env > .env'"
     end
 
-    desc "reset_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_et1
-      invoker 'add', 'et1_web'
-      invoker 'add', 'et1_sidekiq'
-      puts "ET1 is now being hosted from inside docker container"
-    end
 
     desc "et1_env", "Shows et1's environment variables as they should be on a developers machine running locally"
     def et1_env
@@ -101,14 +82,8 @@ module EtFullSystem
 
     desc "local_ccd_export", "Disables the sidekiq process in the invoker system to allow a developer to run it locally"
     def local_ccd_export
-      invoker 'remove', 'et_ccd_export_sidekiq'
-      puts "ccd_export is now expected to be running on your machine. To configure your environment, run 'et_full_system docker ccd_export_env > .env.local'"
-    end
-
-    desc "reset_ccd_export", "Configures invoker to use the internal systems instead of local"
-    def reset_ccd_export
-      invoker 'add', 'et_ccd_export_sidekiq'
-      puts "ccd_export is now being run from inside docker container"
+      run_on_local('disable_ccd_export')
+      puts "ccd_export is now expected to be running on your machine. To configure your environment, run 'et_full_system docker ccd_export_env > .env'"
     end
 
     desc "ccd_export_env", "Shows ccd_export's environment variables as they should be on a developers machine running locally"
@@ -119,16 +94,8 @@ module EtFullSystem
     desc "local_api PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the web server and sidekiq locally"
     def local_api(port)
       local_service('api', port)
-      invoker 'remove', 'api_web'
-      invoker 'remove', 'api_sidekiq'
-      puts "api is now expected to be hosted on port #{port} on your machine. Also, you must provide your own sidekiq. To configure your environment, run 'et_full_system docker api_env > .env.local'"
-    end
-
-    desc "reset_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_api
-      invoker 'add', 'api_web'
-      invoker 'add', 'api_sidekiq'
-      puts "api is now being hosted from inside docker container"
+      disable_api
+      puts "api is now expected to be hosted on port #{port} on your machine. Also, you must provide your own sidekiq. To configure your environment, run 'et_full_system docker api_env > .env'"
     end
 
     desc "api_env", "Shows api's environment variables as they should be on a developers machine running locally"
@@ -139,14 +106,8 @@ module EtFullSystem
     desc "local_admin PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the admin web server locally"
     def local_admin(port)
       local_service('admin', port)
-      invoker 'remove', 'admin_web'
-      puts "Admin is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker admin_env > .env.local'"
-    end
-
-    desc "reset_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_admin
-      invoker 'add', 'admin_web'
-      puts "Admin is now being hosted from inside docker container"
+      disable_admin
+      puts "Admin is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker admin_env > .env'"
     end
 
     desc "admin_env", "Shows admin's environment variables as they should be on a developers machine running locally"
@@ -157,15 +118,10 @@ module EtFullSystem
     desc "local_et3 PORT", "Configures the reverse proxy and the invoker system to allow a developer to run the et3 web server locally"
     def local_et3(port)
       local_service('et3', port)
-      invoker 'remove', 'et3_web'
-      puts "ET3 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et3_env > .env.local'"
+      disable_et3
+      puts "ET3 is now expected to be hosted on port #{port} on your machine. To configure your environment, run 'et_full_system docker et3_env > .env'"
     end
 
-    desc "reset_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
-    def reset_et3
-      invoker 'add', 'et3_web'
-      puts "ET3 is now being hosted from inside docker container"
-    end
 
     desc "et3_env", "Shows et3's environment variables as they should be on a developers machine running locally"
     def et3_env
@@ -174,22 +130,125 @@ module EtFullSystem
 
     desc "service_env SERVICE", "Returns the environment variables configured for the specified service"
     def service_env(service)
-      Bundler.with_original_env do
-        gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "/bin/bash --login -c \"et_full_system local service_env #{service}\""
-        compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
-        result = `#{compose_cmd}`
-        replace_db_host_port(result)
-        replace_redis_host_port(result)
-        replace_smtp_host_port(result)
-        puts result
-      end
+      result = run_on_local("service_env #{service}", return_output: true)
+      replace_db_host_port(result)
+      replace_redis_host_port(result)
+      replace_smtp_host_port(result)
+      puts result
+    end
+
+    desc "enable_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et1
+      run_on_local("enable_et1")
+    end
+
+    desc "enable_ccd_export", "Configures invoker to use the internal systems instead of local"
+    def enable_ccd_export
+      run_on_local("enable_ccd_export")
+    end
+
+    desc "enable_atos_api", "Configures invoker to use the internal systems instead of local"
+    def enable_atos_api
+      run_on_local("enable_atos_api")
+    end
+
+    desc "enable_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_api
+      run_on_local("enable_api")
+    end
+
+    desc "enable_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_admin
+      run_on_local("enable_admin")
+    end
+
+    desc "enable_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et3
+      run_on_local("enable_et3")
+    end
+
+    desc "disable_et1", "Stops et1 from running in the stack"
+    def disable_et1
+      run_on_local("disable_et1")
+    end
+
+    desc "disable_ccd_export", "Stops ccd_export from running in the stack"
+    def disable_ccd_export
+      run_on_local("disable_ccd_export")
+    end
+
+    desc "disable_atos_api", "Stops atos_api running in the stack"
+    def disable_atos_api
+      run_on_local("disable_atos_api")
+    end
+
+    desc "disable_api", "Stops api from running in the stack"
+    def disable_api
+      run_on_local("disable_api")
+    end
+
+    desc "disable_admin", "Stops admin from running in the stack"
+    def disable_admin
+      run_on_local("disable_admin")
+    end
+
+    desc "disable_et3", "Stops et3 from running in the stack"
+    def disable_et3
+      run_on_local("disable_et3")
+    end
+
+    desc "restart_et1", "Restarts the et1 application"
+    def restart_et1
+      run_on_local("restart_et1")
+    end
+
+    desc "restart_api", "Restarts the api application"
+    def restart_api
+      run_on_local("restart_api")
+    end
+
+    desc "restart_et3", "Restarts the et3 application"
+    def restart_et3
+      run_on_local("restart_et3")
+    end
+
+    desc "restart_admin", "Restarts the admin application"
+    def restart_admin
+      run_on_local("restart_admin")
+    end
+
+    desc "restart_atos_api", "Restarts the atos_api application"
+    def restart_atos_api
+      run_on_local("restart_atos_api")
+    end
+
+    desc "restart_ccd_export", "Restarts the ccd_export application"
+    def restart_ccd_export
+      run_on_local("restart_ccd_export")
     end
 
     private
 
+    def unbundled(&block)
+      method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_original_env
+      Bundler.send(method, &block)
+    end
+
+    def run_on_local(cmd, return_output: false)
+      unbundled do
+        gem_root = File.absolute_path('../../..', __dir__)
+        cmd = "/bin/bash --login -c \"et_full_system local #{cmd}\""
+        compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
+        if return_output
+          `#{compose_cmd}`
+        else
+          system(compose_cmd)
+        end
+      end
+    end
+
     def run_compose_command(*args, silent: false)
-      Bundler.with_original_env do
+      unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
         puts cmd unless silent

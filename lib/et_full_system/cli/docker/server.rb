@@ -11,13 +11,15 @@ module EtFullSystem
         method_option :ccd_docker, type: :boolean, default: false, aliases: 'ccd-docker', desc: "If specified, instead of using the built in fake ccd server, the system will connect to your local machine (see ccd-docker-host option also)"
         method_option :ccd_docker_host, type: :string, default: 'docker.for.mac.localhost', aliases: 'ccd-docker-host', desc: "Only used if ccd-docker=true.  This specifies the host name of your machine when viewed from inside the docker container.  This defaults to docker.for.mac.localhost which is suitable for mac OSX only.  Consult docker documentation for other systems"
         method_option :with_test, type: :boolean, default: false, aliases: 'with-test'
-        method_option :use_selenium, type: :boolean, default: true, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
+        method_option :use_selenium, type: :boolean, default: false, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
         method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
         method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
-        method_option :record_video, type: :boolean, default: true, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
+        method_option :record_video, type: :boolean, default: false, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
+        method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
         def up(*args)
-          Bundler.with_original_env do
+          unbundled do
             server_args = []
+            server_args << "--minimal" if options.minimal?
             server_args << "--without=#{options[:without].join(' ')}" unless options[:without].empty?
             env_vars = ["SERVER_ARGS='#{server_args.join(' ')}'"]
             env_vars << "LOCALHOST_FROM_DOCKER_IP=#{host_ip}"
@@ -54,7 +56,7 @@ module EtFullSystem
 
         desc "down", "Stops the full system server on docker"
         def down(*args)
-          ::Bundler.with_original_env do
+          unbundled do
             gem_root = File.absolute_path('../../../..', __dir__)
             cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down #{args.join(' ')}"
             puts cmd
@@ -65,6 +67,12 @@ module EtFullSystem
         default_task :up
 
         private
+
+        def unbundled(&block)
+          method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_original_env
+          Bundler.send(method, &block)
+        end
+
 
         def host_ip
           result = JSON.parse `docker network inspect \`docker network list | grep docker_et_full_system | awk '{print $1}'\``

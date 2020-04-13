@@ -84,6 +84,7 @@ module EtFullSystem
     method_option :minio_storage_path, default: ENV.fetch('MINIO_STORAGE_PATH', '/tmp/minio_storage'), desc: "Where to store minio data"
     method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
     method_option :cloud_provider, type: :string, default: ENV.fetch('CLOUD_PROVIDER', 'amazon')
+    method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
     def server
       puts "Scheduling traefik config and file storage config"
       pid = fork do
@@ -92,12 +93,29 @@ module EtFullSystem
       end
       Process.detach(pid)
 
-      puts "Starting Procfile"
-      ::Bundler.with_original_env do
-        concurrency = " -c #{procfile_concurrency_without(options[:without]).join(',')}"
+      puts "Starting Invoker"
+      unbundled do
+        without = options[:without]
+        if options.minimal?
+          without = ['et1', 'et3', 'admin', 'api', 'ccd_export', 'atos_api']
+        end
         cmd = "CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/Procfile\" --port=4000"
         STDERR.puts cmd
-        exec(cmd)
+        unless without.empty?
+          stop_cmds = without.reduce([]) do |acc, service|
+            acc.concat(invoker_processes_for(service))
+          end.map do |proc|
+            "invoker remove #{proc}"
+          end
+          stop_cmd = stop_cmds.join(' && ')
+          puts "---------------------- DISABLING SERVICES IN 30 SECONDS ---------------------------"
+          puts "command is #{stop_cmd}"
+          Process.fork do
+            sleep 30
+            puts `#{stop_cmd}`
+          end
+        end
+        exec cmd
       end
     end
 
@@ -114,7 +132,7 @@ module EtFullSystem
 
     desc "setup_services", "Sets up all services in one command"
     def setup_services
-      ::Bundler.with_original_env do
+      unbundled do
         setup_et1_service
         setup_et3_service
         setup_api_service
@@ -150,17 +168,153 @@ module EtFullSystem
       puts "The service must be one of #{lookup.keys}"
     end
 
+    desc "invoker", "Provides access to the invoker system"
+    def invoker(*args)
+      cmd = "invoker #{args.join(' ')}"
+      puts cmd
+      result = `#{cmd}`
+      puts result
+      result
+    end
+
+    desc "enable_et1", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et1
+      invoker 'add', 'et1_web'
+      invoker 'add', 'et1_sidekiq'
+      puts "ET1 is now running"
+    end
+
+    desc "enable_ccd_export", "Configures invoker to use the internal systems instead of local"
+    def enable_ccd_export
+      invoker 'add', 'et_ccd_export_sidekiq'
+      puts "ccd_export is now running"
+    end
+
+    desc "enable_atos_api", "Configures invoker to use the internal systems instead of local"
+    def enable_atos_api
+      invoker 'add', 'atos_api_web'
+      puts "atos_api is now running"
+    end
+
+    desc "enable_api", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_api
+      invoker 'add', 'api_web'
+      invoker 'add', 'api_sidekiq'
+      puts "api is now running"
+    end
+
+    desc "enable_admin", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_admin
+      invoker 'add', 'admin_web'
+      puts "Admin is now running"
+    end
+
+    desc "enable_et3", "Configures the reverse proxy and invoker to use the internal systems instead of local"
+    def enable_et3
+      invoker 'add', 'et3_web'
+      puts "ET3 is now running"
+    end
+
+    desc "disable_et1", "Stops <service> from running in the stack"
+    def disable_et1
+      invoker 'remove', 'et1_web'
+      invoker 'remove', 'et1_sidekiq'
+      puts "ET1 is now stopped"
+    end
+
+    desc "disable_ccd_export", "Stops ccd_export from running in the stack"
+    def disable_ccd_export
+      invoker 'remove', 'et_ccd_export_sidekiq'
+      puts "ccd_export is now stopped"
+    end
+
+    desc "disable_atos_api", "Stops atos_api from running in the stack"
+    def disable_atos_api
+      invoker 'remove', 'atos_api_web'
+      puts "atos_api is now stopped"
+    end
+
+    desc "disable_api", "Stops api from running in the stack"
+    def disable_api
+      invoker 'remove', 'api_web'
+      invoker 'remove', 'api_sidekiq'
+      puts "api is now stopped"
+    end
+
+    desc "disable_admin", "Stops admin from running in the stack"
+    def disable_admin
+      invoker 'remove', 'admin_web'
+      puts "Admin is now stopped"
+    end
+
+    desc "disable_et3", "Stops et3 from running in the stack"
+    def disable_et3
+      invoker 'remove', 'et3_web'
+      puts "ET3 is now stopped"
+    end
+
+    desc "restart_et1", "Restarts the et1 application"
+    def restart_et1
+      invoker 'reload', 'et1_web'
+      invoker 'reload', 'et1_sidekiq'
+      puts "ET1 Has been restarted"
+    end
+
+    desc "restart_api", "Restarts the api application"
+    def restart_api
+      invoker 'reload', 'api_web'
+      invoker 'reload', 'api_sidekiq'
+      puts "api Has been restarted"
+    end
+
+    desc "restart_et3", "Restarts the et3 application"
+    def restart_et3
+      invoker 'reload', 'et3_web'
+      puts "et3 Has been restarted"
+    end
+
+    desc "restart_admin", "Restarts the admin application"
+    def restart_admin
+      invoker 'reload', 'admin_web'
+      puts "admin Has been restarted"
+    end
+
+    desc "restart_atos_api", "Restarts the atos_api application"
+    def restart_atos_api
+      invoker 'reload', 'atos_api_web'
+      puts "atos_api Has been restarted"
+    end
+
+    desc "restart_ccd_export", "Restarts the ccd_export application"
+    def restart_ccd_export
+      invoker 'reload', 'et_ccd_export_sidekiq'
+      puts "ccd_export Has been restarted"
+    end
+
     private
+
+    def unbundled(&block)
+      method = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_original_env
+      Bundler.send(method, &block)
+    end
+
+    def invoker_processes_for(service)
+      case service
+      when 'et1' then ['et1_web', 'et1_sidekiq']
+      when 'et3' then ['et3_web']
+      when 'api' then ['api_web', 'api_sidekiq']
+      when 'admin' then ['admin_web']
+      when 'atos_api' then ['atos_api_web']
+      when 'ccd_export' then ['et_ccd_export_sidekiq']
+      else raise "Unknown service #{service}"
+      end
+    end
 
     def procfile_services
       File.readlines("#{GEM_PATH}/foreman/Procfile").inject([]) do |acc, line|
         next if line.strip.start_with?('#')
         acc + [line.split(':').first]
       end
-    end
-
-    def procfile_concurrency_without(without)
-      procfile_services.map {|service| "#{service}=#{without.include?(service) ? 0 : 1}"}
     end
 
     def external_command(cmd, tag)
