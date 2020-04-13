@@ -32,7 +32,7 @@ module EtFullSystem
     def compose(*args)
       unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
+        cmd = "UID=#{Process.uid} GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
         puts cmd
         exec(cmd)
       end
@@ -47,10 +47,10 @@ module EtFullSystem
     def reset
       unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down -v"
+        cmd = "UID=#{Process.uid} GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml down -v"
         puts cmd
         next unless system(cmd)
-        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml build --no-cache"
+        cmd = "UID=#{Process.uid} GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml build --no-cache"
         puts cmd
         next unless system(cmd)
         self.class.start(['setup'])
@@ -238,7 +238,7 @@ module EtFullSystem
       unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "/bin/bash --login -c \"et_full_system local #{cmd}\""
-        compose_cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
+        compose_cmd = "UID=#{Process.uid} GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml exec et #{cmd}"
         if return_output
           `#{compose_cmd}`
         else
@@ -250,7 +250,7 @@ module EtFullSystem
     def run_compose_command(*args, silent: false)
       unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
+        cmd = "UID=#{Process.uid} GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml #{args.join(' ')}"
         puts cmd unless silent
         `#{cmd}`
       end
