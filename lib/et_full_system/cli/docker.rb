@@ -267,7 +267,7 @@ module EtFullSystem
       case ::EtFullSystem.os
       when :linux, :unix
         "http://#{host_ip}:#{port}"
-      when :osx
+      when :macosx
         "http://docker.for.mac.localhost"
       when :windows
         "http://docker.for.windows.localhost"
