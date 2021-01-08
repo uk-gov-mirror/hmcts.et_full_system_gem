@@ -39,7 +39,9 @@ RUN bash --login -c "rvm --default use 2.5.1"
 RUN gem update --system
 
 # ...put your own build instructions here...
-RUN apt-get update && apt-get -y --no-install-recommends install tzdata postgresql gettext-base wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev && rm -rf /var/lib/apt/lists/*
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update && apt-get -y --no-install-recommends install tzdata postgresql gettext-base wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn && rm -rf /var/lib/apt/lists/*
 
 # Install jvm (small version from adoptopenjdk), grab specific version of pdftk jar file from gitlab
 RUN mkdir -p /root/pdftk
