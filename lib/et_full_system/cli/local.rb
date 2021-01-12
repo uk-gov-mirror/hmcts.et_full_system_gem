@@ -127,6 +127,7 @@ module EtFullSystem
     method_option :cloud_provider, type: :string, default: ENV.fetch('CLOUD_PROVIDER', 'amazon')
     def setup
       setup_depencencies
+      setup_ruby_versions
       setup_services
     end
 
@@ -147,6 +148,20 @@ module EtFullSystem
       cmd = "bash --login -c \"cd /tmp && git clone https://github.com/ministryofjustice/et_fake_acas_server.git && cd et_fake_acas_server && gem build -o et_fake_acas_server.gem et_fake_acas_server && gem install et_fake_acas_server.gem && cd .. && rm -rf et_fake_acas_server\""
       STDERR.puts cmd
       external_command cmd, 'setup_dependencies'
+    end
+
+    desc "setup_ruby_versions", "Install all ruby versions required"
+    def setup_ruby_versions
+      versions = Dir.glob(File.join(PROJECT_PATH, 'systems', '*', '.ruby-version')).map do |version_file|
+        File.read(version_file).split("\n").first.gsub(/\Aruby-/, '')
+      end.uniq - [RUBY_VERSION]
+
+      versions.each do |version|
+        puts "------------------------------------------------ SETTING UP ruby #{version} ---------------------------------------------------"
+        cmd = "bash --login -c \"rvm install #{version}\""
+        puts cmd
+        external_command cmd, "ruby #{version} install"
+      end
     end
 
     desc "service_env SERVICE", "Returns the environment variables configured for the specified service"
