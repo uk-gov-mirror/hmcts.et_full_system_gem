@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:0.9.34
+FROM phusion/passenger-customizable:1.0.12
 # Set correct environment variables.
 ENV HOME /root
 ARG GEM_VERSION=>0
@@ -17,25 +17,22 @@ CMD ["/sbin/my_init"]
 #
 #   Ruby support
 
-# The following 2 lines are temporary - see https://github.com/phusion/passenger-docker/issues/234
-# Try to remove and build from scratch maybe after january 2019
-RUN curl -sSL https://rvm.io/pkuczynski.asc | gpg --import -
-RUN curl -sSL https://rvm.io/mpapis.asc -o /pd_build/ruby_support/mpapis-pubkey.asc
+
 #RUN /pd_build/ruby-2.0.*.sh
 #RUN /pd_build/ruby-2.1.*.sh
 #RUN /pd_build/ruby-2.2.*.sh
 #RUN /pd_build/ruby-2.3.*.sh
 #RUN /pd_build/ruby-2.4.*.sh
-RUN /pd_build/ruby-2.5.*.sh
+RUN /pd_build/ruby-2.7.*.sh
 #RUN /pd_build/jruby-9.1.*.sh
 #   Python support.
 #RUN /pd_build/python.sh
 #   Node.js and Meteor standalone support.
 #   (not needed if you already have the above Ruby support)
-#RUN /pd_build/nodejs.sh
+RUN /pd_build/nodejs.sh
 
 # Get latest rubygems
-RUN bash --login -c "rvm --default use 2.5.1"
+RUN bash --login -c "rvm --default use 2.7.2"
 RUN gem update --system
 
 # ...put your own build instructions here...
@@ -65,8 +62,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 COPY docker/pdftk /usr/local/bin
 RUN chmod 0755 /usr/local/bin/pdftk
 
-
-RUN /pd_build/nodejs.sh
 
 # Enable the Redis service.
 RUN rm -f /etc/service/redis/down
@@ -107,7 +102,7 @@ WORKDIR /home/app/full_system
 RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
 
-RUN bash --login -c "rvm --default use 2.5.1"
+RUN bash --login -c "rvm --default use 2.7.2"
 RUN bash --login -c "gem install bundler --version 1.17.3"
 
 # Install gems required outside of any bundle.
