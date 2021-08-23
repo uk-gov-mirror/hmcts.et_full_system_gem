@@ -47,7 +47,6 @@ services:
       - ./.empty:/home/app/full_system/systems/admin/.env.local
       - ./.empty:/home/app/full_system/systems/et_ccd_export/.env.local
     environment:
-      DISABLE_CLOUDWATCH: 'true'
       DB_HOST: 'db'
       DB_USERNAME: 'postgres'
       RAILS_ENV:
@@ -55,7 +54,7 @@ services:
       REDIS_HOST: redis
       SERVER_PORT: ${SERVER_PORT:-3100}
       SERVER_DOMAIN: ${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-      CLOUD_PROVIDER: ${CLOUD_PROVIDER:-amazon}
+      CLOUD_PROVIDER: ${CLOUD_PROVIDER:-azure}
       AZURITE_STORAGE_PATH: /home/app/azure_storage_data
       MINIO_STORAGE_PATH: /home/app/minio_data
       SHOW_DOWNTIME_BANNER:
@@ -64,14 +63,10 @@ services:
       CCD_DATA_STORE_BASE_URL: ${CCD_DATA_STORE_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/data_store}
       CCD_ECM_BASE_URL: ${CCD_ECM_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/ecm}
       CCD_DOCUMENT_STORE_BASE_URL: ${CCD_DOCUMENT_STORE_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/document_store}
-      CCD_DOCUMENT_STORE_URL_REWRITE: ${CCD_DOCUMENT_STORE_URL_REWRITE:-'false'}
-      CCD_USE_SIDAM: ${CCD_USE_SIDAM:-'true'}
       CCD_MICROSERVICE_ID: ${CCD_MICROSERVICE_ID:-ccd_gw}
       CCD_MICROSERVICE_SECRET: ${CCD_MICROSERVICE_SECRET:-AAAAAAAAAAAAAAAC}
       CCD_SIDAM_USERNAME: ${CCD_SIDAM_USERNAME:-m@m.com}
       CCD_SIDAM_PASSWORD: ${CCD_SIDAM_PASSWORD:-p}
-      CCD_GENERATE_ETHOS_CASE_REFERENCE: ${CCD_GENERATE_ETHOS_CASE_REFERENCE:-'false'}
-      AZURE_APP_INSIGHTS_KEY: ${AZURE_APP_INSIGHTS_KEY:-2ac37587-9187-4ec1-97a4-d12ba26bc0fc}
     command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server --azurite-storage-path=/home/app/azure_storage_data --minio-storage-path=/home/app/minio_data ${SERVER_ARGS}"
     links:
       - "db"
