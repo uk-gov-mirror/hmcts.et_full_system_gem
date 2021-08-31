@@ -141,7 +141,7 @@ services:
     image: "dosel/zalenium"
     container_name: zalenium
     hostname: zalenium
-    tty: 'true'
+    tty: true
     volumes:
       - zalenium_videos:/home/seluser/videos
       - /var/run/docker.sock:/var/run/docker.sock
