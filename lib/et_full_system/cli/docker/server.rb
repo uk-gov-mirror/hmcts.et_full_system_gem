@@ -14,7 +14,6 @@ module EtFullSystem
         method_option :use_selenium, type: :boolean, default: false, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
         method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
         method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
-        method_option :record_video, type: :boolean, default: false, aliases: 'record-video', desc: 'When using zalenium, enable video recording'
         method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
         def up(*args)
           unbundled do
@@ -35,15 +34,12 @@ module EtFullSystem
               env_vars << "CCD_SIDAM_PASSWORD=Pa55word11"
               env_vars << "CCD_GENERATE_ETHOS_CASE_REFERENCE=true"
             end
-            extra_args = []
+            extra_args = ['--no-recreate']
             if options.with_test? && options.use_selenium?
               extra_args.concat(["--scale chrome=#{options.chrome_instances}"])
               extra_args.concat(["--scale firefox=#{options.firefox_instances}"])
             else
               extra_args.concat(['--scale selenium-hub=0', '--scale chrome=0', '--scale firefox=0'])
-            end
-            unless options.with_test? && !options.use_selenium?
-              extra_args.concat(['--scale zalenium=0'])
             end
             env_vars << "DB_PORT=#{ENV.fetch('DB_PORT', EtFullSystem.is_port_open?(5432) ? 0 : 5432)}"
             env_vars << "REDIS_PORT=#{ENV.fetch('REDIS_PORT', EtFullSystem.is_port_open?(6379) ? 0 : 6379)}"
