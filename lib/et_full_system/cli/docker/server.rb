@@ -34,7 +34,7 @@ module EtFullSystem
               env_vars << "CCD_SIDAM_PASSWORD=Pa55word11"
               env_vars << "CCD_GENERATE_ETHOS_CASE_REFERENCE=true"
             end
-            extra_args = ['--no-recreate']
+            extra_args = []
             if options.with_test? && options.use_selenium?
               extra_args.concat(["--scale chrome=#{options.chrome_instances}"])
               extra_args.concat(["--scale firefox=#{options.firefox_instances}"])
