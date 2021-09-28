@@ -1,5 +1,7 @@
 ---
   delivery_method: smtp
+  smtp_address: "mail.et.127.0.0.1.nip.io"
+  smtp_port: 1025
   include_templates:
   - id: a55e0b84-8d65-4bf4-93a7-e974e0d8d48d
     name: et1-confirmation-email-v1-en
