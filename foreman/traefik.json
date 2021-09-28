@@ -79,6 +79,14 @@
           "weight": 1
         }
       }
+    },
+    "fake_notify": {
+      "servers": {
+        "web": {
+          "url": "http://localhost:11603",
+          "weight": 1
+        }
+      }
     }
 
 
@@ -201,6 +209,18 @@
       "routes": {
         "test_1": {
           "rule": "Host:ccd.et.127.0.0.1.nip.io"
+        }
+      }
+    },
+    "fake_notify": {
+      "entryPoints": [
+        "http"
+      ],
+      "backend": "fake_notify",
+      "passHostHeader": true,
+      "routes": {
+        "test_1": {
+          "rule": "Host:notify.et.127.0.0.1.nip.io"
         }
       }
     }
