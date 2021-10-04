@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:1.0.15
+FROM phusion/passenger-customizable:1.0.12
 # Set correct environment variables.
 ENV HOME /root
 ARG GEM_VERSION=>0
@@ -35,7 +35,7 @@ RUN /pd_build/ruby-2.7.*.sh
 RUN /pd_build/nodejs.sh
 
 # Get latest rubygems
-RUN bash --login -c "rvm --default use 2.7.3"
+RUN bash --login -c "rvm --default use 2.7.2"
 RUN gem update --system
 
 # ...put your own build instructions here...
@@ -105,7 +105,7 @@ WORKDIR /home/app/full_system
 RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
 
-RUN bash --login -c "rvm --default use 2.7.3"
+RUN bash --login -c "rvm --default use 2.7.2"
 RUN bash --login -c "gem install bundler --version 1.17.3"
 
 # Install gems required outside of any bundle.
