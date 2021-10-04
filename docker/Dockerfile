@@ -5,9 +5,9 @@ ARG GEM_VERSION=>0
 ARG user_id=1000
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
-RUN mv /etc/apt/sources.list.d{,.bak}
+RUN mv /etc/apt/sources.list.d /etc/apt/sources.list.d.bak
 RUN apt update && apt install -y ca-certificates
-RUN mv /etc/apt/sources.list.d{.bak,}
+RUN mv /etc/apt/sources.list.d.bak /etc/apt/sources.list.d
 RUN apt-get update
 # If you're using the 'customizable' variant, you need to explicitly opt-in
 # for features.
