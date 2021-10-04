@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:1.0.19
+FROM phusion/passenger-customizable:1.0.15
 # Set correct environment variables.
 ENV HOME /root
 ARG GEM_VERSION=>0
