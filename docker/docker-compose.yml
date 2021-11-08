@@ -111,6 +111,8 @@ services:
       - et_full_system
     extra_hosts:
       - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
+    profiles:
+      - test
   chrome:
     image: selenium/node-chrome:3.141.59-yttrium
     volumes:
@@ -124,6 +126,9 @@ services:
       - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     networks:
       - et_full_system
+    profiles:
+      - test
+      - chrome
   firefox:
     image: selenium/node-firefox:3.141.59-yttrium
     volumes:
@@ -137,6 +142,9 @@ services:
       - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP:-127.255.255.255}"
     networks:
       - et_full_system
+    profiles:
+      - test
+      - firefox
 volumes:
   rvm:
   global_node_modules:
