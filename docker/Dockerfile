@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:1.0.12
+FROM phusion/passenger-customizable:1.0.19
 # Set correct environment variables.
 ENV HOME /root
 ARG GEM_VERSION=>0
@@ -35,36 +35,13 @@ RUN /pd_build/ruby-2.7.*.sh
 RUN /pd_build/nodejs.sh
 
 # Get latest rubygems
-RUN bash --login -c "rvm --default use 2.7.2"
+RUN bash --login -c "rvm --default use 2.7.4"
 RUN gem update --system
 
 # ...put your own build instructions here...
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get -y --no-install-recommends install tzdata postgresql gettext-base wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn shared-mime-info && rm -rf /var/lib/apt/lists/*
-
-# Install jvm (small version from adoptopenjdk), grab specific version of pdftk jar file from gitlab
-RUN mkdir -p /root/pdftk
-WORKDIR /root/pdftk
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    unzip \
-    && curl --location -o jvm.tar.gz https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u222-b10_openj9-0.15.1/OpenJDK8U-jre_x64_linux_openj9_8u222b10_openj9-0.15.1.tar.gz \
-    && mkdir -p /usr/lib/jvm \
-    && tar --directory=/usr/lib/jvm -xvzf jvm.tar.gz \
-    && rm jvm.tar.gz \
-    && ln -s /usr/lib/jvm/jdk8u222-b10-jre/bin/java /etc/alternatives/java \
-    && ln -s /etc/alternatives/java /usr/bin/java \
-    && curl --location -o artifacts.zip https://gitlab.com/pdftk-java/pdftk/-/jobs/artifacts/v3.0.7/download?job=gradle \
-    && unzip artifacts.zip \
-    && mv build/libs/pdftk-all.jar /usr/local/lib/pdftk.jar \
-    && rm -rf build artifacts.zip \
-    && apt-get remove -y unzip \
-    && apt autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
-# pdftk is a 2 line bash script to just call the jar file, put it in the path
-COPY docker/pdftk /usr/local/bin
-RUN chmod 0755 /usr/local/bin/pdftk
-
+RUN apt-get update && apt-get -y --no-install-recommends install tzdata postgresql gettext-base pdftk wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn shared-mime-info && rm -rf /var/lib/apt/lists/*
 
 # Enable the Redis service.
 RUN rm -f /etc/service/redis/down
@@ -105,7 +82,7 @@ WORKDIR /home/app/full_system
 RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
 
-RUN bash --login -c "rvm --default use 2.7.2"
+RUN bash --login -c "rvm --default use 2.7.4"
 RUN bash --login -c "gem install bundler --version 1.17.3"
 
 # Install gems required outside of any bundle.
