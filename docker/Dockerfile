@@ -86,7 +86,7 @@ RUN bash --login -c "rvm --default use 2.7.4"
 RUN bash --login -c "gem install bundler --version 1.17.3"
 
 # Install gems required outside of any bundle.
-RUN bash --login -c "rvm use && gem install dotenv et_fake_acas_server invoker && gem install et_full_system --version=$GEM_VERSION"
+RUN bash --login -c "rvm use 2.7.4 && gem install dotenv et_fake_acas_server invoker && gem install et_full_system --version=$GEM_VERSION"
 
 WORKDIR /home/app/full_system
 
