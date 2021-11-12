@@ -53,6 +53,9 @@ RUN apt-get update && apt-get -y --no-install-recommends install freeport tzdata
 # Enable the Redis service.
 RUN rm -f /etc/service/redis/down
 
+# Install freeport
+RUN  wget https://github.com/phayes/freeport/releases/download/1.0.2/freeport_1.0.2_linux_amd64.deb && dpkg -i freeport_1.0.2_linux_amd64.deb && rm freeport_1.0.2_linux_amd64.deb
+
 # Install azurite
 RUN bash -lc "npm install -g azurite@2.7.0"
 
