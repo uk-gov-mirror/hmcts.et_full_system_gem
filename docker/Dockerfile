@@ -1,8 +1,15 @@
+FROM mailhog/mailhog:v1.0.1 AS mailhog
+FROM traefik:1.7 AS traefik
+FROM minio/minio AS minio
 FROM phusion/passenger-customizable:1.0.19
+
 # Set correct environment variables.
 ENV HOME /root
 ARG GEM_VERSION=>0
 ARG user_id=1000
+COPY --from=mailhog /usr/local/bin/MailHog /usr/local/bin/mailhog
+COPY --from=traefik /traefik /usr/local/bin/
+COPY --from=minio /opt/bin/minio /usr/local/bin/
 # Use baseimage-docker's init process.
 CMD ["/sbin/my_init"]
 RUN mv /etc/apt/sources.list.d /etc/apt/sources.list.d.bak
@@ -41,24 +48,13 @@ RUN gem update --system
 # ...put your own build instructions here...
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get -y --no-install-recommends install tzdata postgresql gettext-base pdftk wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn shared-mime-info && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y --no-install-recommends install freeport tzdata postgresql gettext-base pdftk wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn shared-mime-info && rm -rf /var/lib/apt/lists/*
 
 # Enable the Redis service.
 RUN rm -f /etc/service/redis/down
 
-# Install freeport
-RUN  wget https://github.com/phayes/freeport/releases/download/1.0.2/freeport_1.0.2_linux_amd64.deb && dpkg -i freeport_1.0.2_linux_amd64.deb && rm freeport_1.0.2_linux_amd64.deb
-# Install traefik (For front end reverse proxy)
-RUN bash -lc "wget https://github.com/containous/traefik/releases/download/v1.7.10/traefik_linux-amd64 && mv ./traefik_linux-amd64 /usr/bin/traefik && chmod +x /usr/bin/traefik"
-
-# Install minio
-RUN bash -lc "cd /usr/local/bin && wget https://dl.minio.io/server/minio/release/linux-amd64/minio && chmod +x minio"
-
 # Install azurite
 RUN bash -lc "npm install -g azurite@2.7.0"
-
-# Install Mailhog
-RUN bash -lc "cd /usr/local/bin && wget https://github.com/mailhog/MailHog/releases/download/v1.0.0/MailHog_linux_amd64 -O mailhog && chmod +x mailhog"
 
 # Install go, then godotenv, then remove go
 RUN apt-get update && apt-get -y install --no-install-recommends golang && export GOPATH=/home/app/go && mkdir -p /home/app/go && go get github.com/joho/godotenv/cmd/godotenv && apt-get -y remove golang && apt -y autoremove && rm -rf /var/lib/apt/lists/* && cp /home/app/go/bin/godotenv /usr/bin/ && rm -rf /home/app/go
