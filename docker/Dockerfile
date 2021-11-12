@@ -48,7 +48,7 @@ RUN gem update --system
 # ...put your own build instructions here...
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get -y --no-install-recommends install tzdata postgresql gettext-base pdftk wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn shared-mime-info && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y --no-install-recommends install musl tzdata postgresql gettext-base pdftk wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn shared-mime-info && rm -rf /var/lib/apt/lists/*
 
 # Enable the Redis service.
 RUN rm -f /etc/service/redis/down
