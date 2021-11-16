@@ -1,3 +1,3 @@
 module EtFullSystem
-  VERSION = "6.0.0.pre.rc4"
+  VERSION = "6.0.0.pre.rc5"
 end
