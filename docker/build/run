@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+cd /home/app/full_system/systems/et1 && bundle && bundle exec rails db:create db:migrate && \
+cd /home/app/full_system/systems/et3 && bundle && bundle exec rails db:create db:migrate && \
+cd /home/app/full_system/systems/api && bundle && bundle exec rails db:create db:migrate db:seed && \
+cd /home/app/full_system/systems/admin && bundle && bundle exec rails db:seed && \
+cd /home/app/full_system/systems/atos && bundle && \
+cd /home/app/full_system/systems/et_ccd_export && bundle && \
+sleep 60
+

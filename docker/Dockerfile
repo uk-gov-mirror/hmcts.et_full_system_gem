@@ -1,93 +1,36 @@
-FROM mailhog/mailhog:v1.0.1 AS mailhog
-FROM traefik:1.7 AS traefik
-FROM minio/minio AS minio
-FROM phusion/passenger-customizable:1.0.19
-
+FROM ruby:2.7.4-alpine
 # Set correct environment variables.
-ENV HOME /root
+
 ARG GEM_VERSION=>0
 ARG user_id=1000
-COPY --from=mailhog /usr/local/bin/MailHog /usr/local/bin/mailhog
-COPY --from=traefik /traefik /usr/local/bin/
-COPY --from=minio /opt/bin/minio /usr/local/bin/
-# Use baseimage-docker's init process.
-CMD ["/sbin/my_init"]
-RUN mv /etc/apt/sources.list.d /etc/apt/sources.list.d.bak
-RUN apt update && apt install -y ca-certificates
-RUN mv /etc/apt/sources.list.d.bak /etc/apt/sources.list.d
-RUN apt-get update
-# If you're using the 'customizable' variant, you need to explicitly opt-in
-# for features.
-#
-# N.B. these images are based on https://github.com/phusion/baseimage-docker,
-# so anything it provides is also automatically on board in the images below
-# (e.g. older versions of Ruby, Node, Python).
-#
-# Uncomment the features you want:
-#
-#   Ruby support
-
-
-#RUN /pd_build/ruby-2.0.*.sh
-#RUN /pd_build/ruby-2.1.*.sh
-#RUN /pd_build/ruby-2.2.*.sh
-#RUN /pd_build/ruby-2.3.*.sh
-#RUN /pd_build/ruby-2.4.*.sh
-RUN /pd_build/ruby-2.7.*.sh
-#RUN /pd_build/jruby-9.1.*.sh
-#   Python support.
-#RUN /pd_build/python.sh
-#   Node.js and Meteor standalone support.
-#   (not needed if you already have the above Ruby support)
-RUN /pd_build/nodejs.sh
-
 # Get latest rubygems
-RUN bash --login -c "rvm --default use 2.7.4"
 RUN gem update --system
-
-# ...put your own build instructions here...
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get -y --no-install-recommends install musl tzdata postgresql gettext-base pdftk wget sudo libmcrypt-dev mcrypt sqlite3 libsqlite3-dev yarn shared-mime-info && rm -rf /var/lib/apt/lists/*
-
-# Enable the Redis service.
-RUN rm -f /etc/service/redis/down
-
-# Install freeport
-RUN  wget https://github.com/phayes/freeport/releases/download/1.0.2/freeport_1.0.2_linux_amd64.deb && dpkg -i freeport_1.0.2_linux_amd64.deb && rm freeport_1.0.2_linux_amd64.deb
-
-# Install azurite
-RUN bash -lc "npm install -g azurite@2.7.0"
-
-# Install go, then godotenv, then remove go
-RUN apt-get update && apt-get -y install --no-install-recommends golang && export GOPATH=/home/app/go && mkdir -p /home/app/go && go get github.com/joho/godotenv/cmd/godotenv && apt-get -y remove golang && apt -y autoremove && rm -rf /var/lib/apt/lists/* && cp /home/app/go/bin/godotenv /usr/bin/ && rm -rf /home/app/go
-
-# Create the minio_data directory for the minio server
-RUN mkdir -p /home/app/minio_data; chown app:app /home/app/minio_data; chmod 0777 /home/app/minio_data
-
-# Create the azure_storage_data directory for the azure storage server
-RUN mkdir -p /home/app/azure_storage_data; chown app:app /home/app/azure_storage_data; chmod 0777 /home/app/azure_storage_data
-
-# Clean up APT when done.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
+RUN apk add --no-cache postgresql-dev libffi-dev tzdata gettext wget sudo libmcrypt-dev sqlite sqlite-dev nodejs yarn shared-mime-info git build-base curl bash openjdk11-jre
+RUN addgroup app --gid 1000
+RUN adduser -SD -u 1000 --shell /bin/bash --home /home/app app app
+RUN chown -R app:app /usr/local/bundle
 RUN mkdir -p /home/app/full_system; chown app:app /home/app/full_system
+RUN wget https://gitlab.com/pdftk-java/pdftk/-/jobs/1507074845/artifacts/raw/build/libs/pdftk-all.jar
+RUN mv pdftk-all.jar usr/lib/pdftk.jar
+COPY build/pdftk /usr/local/bin/pdftk
+COPY build/run /home/app/run
 # Install gems and binstubs to run without bundler
 RUN mkdir -p /home/app/system_gems/et_full_system && chmod 0777 /home/app/system_gems/et_full_system && chown -R app:app /home/app/system_gems
 
-RUN usermod -o -u $user_id app
-RUN groupmod -o -g $user_id app
+#RUN usermod -o -u $user_id app
+#RUN groupmod -o -g $user_id app
 WORKDIR /home/app/full_system
-RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
+#RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
+RUN gem install dotenv bundler:1.17.3 invoker
+CMD /home/app/run
 
-RUN bash --login -c "rvm --default use 2.7.4"
-RUN bash --login -c "gem install bundler --version 1.17.3"
+#RUN bash --login -c "gem install bundler --version 1.17.3"
 
 # Install gems required outside of any bundle.
-RUN bash --login -c "rvm use 2.7.4 && gem install dotenv et_fake_acas_server invoker && gem install et_full_system --version=$GEM_VERSION"
+#RUN bash --login -c "rvm use 2.7.4 && gem install dotenv et_fake_acas_server invoker && gem install et_full_system --version=$GEM_VERSION"
 
-WORKDIR /home/app/full_system
+#WORKDIR /home/app/full_system
 
-RUN cd /home/app
-ENV HOME /home/app
+#RUN cd /home/app
+#ENV HOME /home/app
