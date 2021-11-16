@@ -12,8 +12,9 @@ RUN chown -R app:app /usr/local/bundle
 RUN mkdir -p /home/app/full_system; chown app:app /home/app/full_system
 RUN wget https://gitlab.com/pdftk-java/pdftk/-/jobs/1507074845/artifacts/raw/build/libs/pdftk-all.jar
 RUN mv pdftk-all.jar usr/lib/pdftk.jar
-COPY build/pdftk /usr/local/bin/pdftk
-COPY build/run /home/app/run
+COPY docker/build/pdftk /usr/local/bin/pdftk
+COPY docker/build/run /home/app/run
+
 # Install gems and binstubs to run without bundler
 RUN mkdir -p /home/app/system_gems/et_full_system && chmod 0777 /home/app/system_gems/et_full_system && chown -R app:app /home/app/system_gems
 
