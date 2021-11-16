@@ -21,7 +21,7 @@ RUN mkdir -p /home/app/system_gems/et_full_system && chmod 0777 /home/app/system
 #RUN usermod -o -u $user_id app
 #RUN groupmod -o -g $user_id app
 WORKDIR /home/app/full_system
-#RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
+RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
 RUN gem install dotenv bundler:1.17.3 invoker et_full_system:$GEM_VERSION
 CMD /home/app/run
