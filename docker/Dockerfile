@@ -1,6 +1,9 @@
+FROM golang:alpine3.14 AS golang
+RUN go install github.com/joho/godotenv/cmd/godotenv@latest
+
 FROM ruby:2.7.4-alpine
 # Set correct environment variables.
-
+COPY --from=golang /go/bin/godotenv /usr/local/bin/
 ARG GEM_VERSION=>0
 ARG user_id=1000
 # Get latest rubygems
