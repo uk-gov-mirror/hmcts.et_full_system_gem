@@ -10,10 +10,6 @@ module EtFullSystem
         method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, s3_web, azure_blob_web, fake_acas_web, fake_ccd_web"
         method_option :ccd_docker, type: :boolean, default: false, aliases: 'ccd-docker', desc: "If specified, instead of using the built in fake ccd server, the system will connect to your local machine (see ccd-docker-host option also)"
         method_option :ccd_docker_host, type: :string, default: 'docker.for.mac.localhost', aliases: 'ccd-docker-host', desc: "Only used if ccd-docker=true.  This specifies the host name of your machine when viewed from inside the docker container.  This defaults to docker.for.mac.localhost which is suitable for mac OSX only.  Consult docker documentation for other systems"
-        method_option :with_test, type: :boolean, default: false, aliases: 'with-test'
-        method_option :use_selenium, type: :boolean, default: false, aliases: 'use-selenium', desc: 'Only used if with_test is true - says to use selenium in preference to zalenium'
-        method_option :chrome_instances, type: :numeric, default: 1, aliases: 'chrome-instances', desc: 'Specify the number of chrome instances for selenium'
-        method_option :firefox_instances, type: :numeric, default: 1, aliases: 'firefox-instances', desc: 'Specify the number of firefox instances for selenium'
         method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
         def up(*args)
           unbundled do
@@ -35,12 +31,6 @@ module EtFullSystem
               env_vars << "CCD_GENERATE_ETHOS_CASE_REFERENCE=true"
             end
             extra_args = []
-            if options.with_test? && options.use_selenium?
-              extra_args.concat(["--scale chrome=#{options.chrome_instances}"])
-              extra_args.concat(["--scale firefox=#{options.firefox_instances}"])
-            else
-              extra_args.concat(['--scale selenium-hub=0', '--scale chrome=0', '--scale firefox=0'])
-            end
             env_vars << "DB_PORT=#{ENV.fetch('DB_PORT', EtFullSystem.is_port_open?(5432) ? 0 : 5432)}"
             env_vars << "REDIS_PORT=#{ENV.fetch('REDIS_PORT', EtFullSystem.is_port_open?(6379) ? 0 : 6379)}"
             gem_root = File.absolute_path('../../../..', __dir__)
