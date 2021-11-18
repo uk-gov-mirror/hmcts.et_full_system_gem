@@ -338,11 +338,14 @@ module EtFullSystem
     end
 
     def external_command(cmd, tag)
-      IO.popen(cmd) do |io|
+      ret = IO.popen(cmd) do |io|
         io.each do |line|
           puts "| #{tag} | #{line}"
         end
       end
+      raise "Command failed" unless $?.exitstatus.zero?
+
+      ret
     end
 
     def setup_et1_service
@@ -351,7 +354,7 @@ module EtFullSystem
       puts cmd
       external_command cmd, 'et1 setup'
 
-      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && npm install\""
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && yarn install\""
       puts cmd
       external_command cmd, 'et1 setup'
 
