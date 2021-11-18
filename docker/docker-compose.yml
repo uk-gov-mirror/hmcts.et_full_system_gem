@@ -35,6 +35,12 @@ services:
       - '${SERVER_PORT:-3100}:${SERVER_PORT:-3100}'
       - '${TRAEFIX_PORT:-3200}:${TRAEFIK_PORT:-3200}'
       - '${SMTP_PORT:-1025}:${SMTP_PORT:-1025}'
+    links:
+      - db
+      - redis
+      - minio
+      - azurite
+      - mailhog
     extra_hosts:
       - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     volumes:
