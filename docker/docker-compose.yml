@@ -15,6 +15,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - et_full_system
+    links:
+      - db
+      - redis
+      - minio
+      - azurite
+      - mailhog
+      - et
   et:
     image: 'et_full_system:1.0.0.pre'
     build:
@@ -83,9 +90,6 @@ services:
       CCD_SIDAM_USERNAME: ${CCD_SIDAM_USERNAME:-m@m.com}
       CCD_SIDAM_PASSWORD: ${CCD_SIDAM_PASSWORD:-p}
     command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server --in-docker-compose ${SERVER_ARGS}"
-    links:
-      - "db"
-      - "redis"
     networks:
       et_full_system:
         aliases:
