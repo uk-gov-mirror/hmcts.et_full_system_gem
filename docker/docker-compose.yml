@@ -148,6 +148,9 @@ services:
       - traefik.http.routers.s3-router.rule=Host(`s3.et.127.0.0.1.nip.io`)
       - traefik.http.routers.s3-router.service=et1-service
       - traefik.http.services.s3-service.loadbalancer.server.port=9000
+    command:
+      - server
+      - /data
     networks:
       - et_full_system
   mailhog:
