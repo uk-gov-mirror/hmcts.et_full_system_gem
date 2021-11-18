@@ -41,6 +41,12 @@ services:
       - minio
       - azurite
       - mailhog
+    depends_on:
+      - db
+      - redis
+      - azurite
+      - mailhog
+      - minio
     extra_hosts:
       - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     volumes:
