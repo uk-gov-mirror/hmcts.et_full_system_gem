@@ -89,7 +89,7 @@ module EtFullSystem
     def server
       puts "Scheduling traefik config and file storage config"
       pid = fork do
-        self.class.start(['boot'])
+        self.class.start(['boot']) unless options.in_docker_compose?
         EtFullSystem::Cli::Local::FileStorageCommand.start(['setup'])
       end
       Process.detach(pid)
