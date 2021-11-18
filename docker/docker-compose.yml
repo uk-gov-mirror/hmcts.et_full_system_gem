@@ -29,11 +29,6 @@ services:
       args:
         GEM_VERSION:
         user_id: ${UID:-1000}
-
-    ports:
-      - '${SERVER_PORT:-3100}:${SERVER_PORT:-3100}'
-      - '${TRAEFIX_PORT:-3200}:${TRAEFIK_PORT:-3200}'
-      - '${SMTP_PORT:-1025}:${SMTP_PORT:-1025}'
     links:
       - db
       - redis
