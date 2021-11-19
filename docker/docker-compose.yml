@@ -13,7 +13,10 @@ services:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - et_full_system
+      et_full_system:
+        aliases:
+          - s3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+
     links:
       - db
       - redis
@@ -103,7 +106,6 @@ services:
           - admin.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - et1.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - et3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - s3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - azure_blob_storage.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - azure.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - atos.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
