@@ -130,9 +130,10 @@ module EtFullSystem
     desc "setup", "Sets up everything ready for first run"
     method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
     method_option :cloud_provider, type: :string, default: ENV.fetch('CLOUD_PROVIDER', 'amazon')
+    method_option :in_docker_compose, type: :boolean, default: false, desc: 'Set to true to assume certain services are in docker compose'
     def setup
       setup_depencencies
-      setup_ruby_versions
+      setup_ruby_versions unless options.in_docker_compose?
       setup_services
     end
 

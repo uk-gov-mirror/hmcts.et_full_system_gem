@@ -21,7 +21,7 @@ module EtFullSystem
     def setup
       unbundled do
         gem_root = File.absolute_path('../../..', __dir__)
-        cmd = "/bin/bash --login -c \"cd /home/app/full_system && et_full_system docker bootstrap && et_full_system local setup\""
+        cmd = "/bin/bash --login -c \"cd /home/app/full_system && et_full_system docker bootstrap && et_full_system local setup --in-docker-compose\""
         compose_cmd = "UID=#{Process.uid} GEM_VERSION=#{EtFullSystem::VERSION} LOCALHOST_FROM_DOCKER_IP=#{host_ip} docker-compose -f #{gem_root}/docker/docker-compose.yml run --rm et #{cmd}"
         puts compose_cmd
         exec(compose_cmd)
