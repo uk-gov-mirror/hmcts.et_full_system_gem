@@ -4,11 +4,11 @@ services:
     # The official v2 Traefik docker image
     image: traefik:v2.5
     # Enables the web UI and tells Traefik to listen to docker
-    command: --api.insecure=true --providers.docker
+    command: --api.insecure=true --providers.docker --entryPoints.http.address=:3100 --entryPoints.traefik.address=:3200
     ports:
-      - "3100:80"
+      - "3100:3100"
       # The Web UI (enabled by --api.insecure=true)
-      - "3200:8080"
+      - "3200:3200"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
