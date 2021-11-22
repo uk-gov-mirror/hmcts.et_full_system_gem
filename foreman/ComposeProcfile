@@ -1,4 +1,4 @@
-et1_web:  export godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et1.env bash --login -c "cd ${FS_ROOT_PATH} && cd systems/et1 && bundle exec iodine -port $PORT"
+et1_web:  export godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et1.env bash --login -c "cd ${FS_ROOT_PATH} && cd systems/et1 && bundle exec iodine -port $PORT > /home/app/et1.log"
 et3_web:  godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et3.env bash --login -c "cd ${FS_ROOT_PATH} && cd systems/et3 && bundle exec iodine -port $PORT"
 api_web: godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_api.env bash --login -c "cd ${FS_ROOT_PATH} && cd systems/api && bundle exec iodine -port $PORT"
 admin_web: godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et_admin.env bash --login -c "cd ${FS_ROOT_PATH} && cd systems/admin && bundle exec iodine -port $PORT"
