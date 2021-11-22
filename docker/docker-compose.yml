@@ -16,6 +16,7 @@ services:
       et_full_system:
         aliases:
           - s3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - azure_blob_storage.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
 
     links:
       - db
@@ -106,7 +107,6 @@ services:
           - admin.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - et1.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - et3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - azure_blob_storage.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - azure.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - atos.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - mail.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
