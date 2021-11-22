@@ -47,7 +47,7 @@ services:
     extra_hosts:
       - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     volumes:
-      - rvm:/usr/local/rvm
+      - bundle:/usr/local/bundle
       - global_node_modules:/usr/lib/node_modules
       - ${PWD}:/home/app/full_system
       - et1_node_modules:/home/app/full_system/systems/et1/node_modules
