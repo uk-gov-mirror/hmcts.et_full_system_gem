@@ -182,7 +182,7 @@ services:
     networks:
       - et_full_system
 volumes:
-  rvm:
+  bundle:
   global_node_modules:
   et1_node_modules:
   et3_node_modules:
