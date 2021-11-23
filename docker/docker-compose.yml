@@ -164,6 +164,9 @@ services:
       - /data
     networks:
       - et_full_system
+    environment:
+      MINIO_ACCESS_KEY: accessKey1
+      MINIO_SECRET_KEY: verySecretKey1
   mailhog:
     image: mailhog/mailhog:v1.0.1
     labels:
