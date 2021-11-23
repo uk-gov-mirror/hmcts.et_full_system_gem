@@ -18,6 +18,13 @@ services:
           - s3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - azure_blob_storage.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - notify.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - api.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - admin.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - et1.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - et3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - azure.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - atos.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - ccd.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
 
     links:
       - db
@@ -101,15 +108,7 @@ services:
       CCD_SIDAM_PASSWORD: ${CCD_SIDAM_PASSWORD:-p}
     command: /bin/bash --login -c "cd /home/app/full_system && et_full_system local server --in-docker-compose ${SERVER_ARGS}"
     networks:
-      et_full_system:
-        aliases:
-          - api.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - admin.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - et1.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - et3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - azure.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - atos.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - ccd.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+      - et_full_system
     labels:
       - traefik.http.routers.et1-router.rule=Host(`et1.et.127.0.0.1.nip.io`)
       - traefik.http.routers.et1-router.service=et1-service
