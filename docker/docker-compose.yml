@@ -25,6 +25,7 @@ services:
           - azure.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - atos.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - ccd.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - acas.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
 
     links:
       - db
