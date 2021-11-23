@@ -17,6 +17,7 @@ services:
         aliases:
           - s3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - azure_blob_storage.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
+          - notify.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
 
     links:
       - db
@@ -59,7 +60,6 @@ services:
       - et3_assets:/home/app/full_system/systems/et3/public/assets
       - admin_assets:/home/app/full_system/systems/admin/public/assets
       - s3_data:/home/app/minio_data
-      - azure_storage_data:/home/app/azure_storage_data
       - et1_bundle:/home/app/full_system/systems/et1/.bundle
       - et3_bundle:/home/app/full_system/systems/et3/.bundle
       - api_bundle:/home/app/full_system/systems/api/.bundle
@@ -181,6 +181,8 @@ services:
       - traefik.http.services.azurite-service.loadbalancer.server.port=10000
     networks:
       - et_full_system
+    volumes:
+      - azure_storage_data:/data
 volumes:
   bundle:
   global_node_modules:
