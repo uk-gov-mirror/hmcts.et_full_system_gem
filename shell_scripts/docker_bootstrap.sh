@@ -16,5 +16,3 @@ sudo chown app:app /home/app/full_system/systems/et3/.bundle && \
 sudo chown app:app /home/app/full_system/systems/api/.bundle && \
 sudo chown app:app /home/app/full_system/systems/admin/.bundle && \
 sudo chown app:app /home/app/full_system/systems/atos/.bundle && \
-sudo chown app:app /home/app/minio_data && \
-sudo chown app:app /home/app/azure_storage_data
