@@ -109,7 +109,6 @@ services:
           - et3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - azure.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - atos.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-          - mail.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - ccd.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
     labels:
       - traefik.http.routers.et1-router.rule=Host(`et1.et.127.0.0.1.nip.io`)
@@ -172,7 +171,9 @@ services:
       - traefik.http.routers.mail-router.service=mail-service
       - traefik.http.services.mail-service.loadbalancer.server.port=8025
     networks:
-      - et_full_system
+      et_full_system:
+        aliases:
+          - mail.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
   azurite:
     image: touchify/azurite:2.7
     labels:
