@@ -15,4 +15,4 @@ sudo chown app:app /home/app/full_system/systems/et1/.bundle && \
 sudo chown app:app /home/app/full_system/systems/et3/.bundle && \
 sudo chown app:app /home/app/full_system/systems/api/.bundle && \
 sudo chown app:app /home/app/full_system/systems/admin/.bundle && \
-sudo chown app:app /home/app/full_system/systems/atos/.bundle && \
+sudo chown app:app /home/app/full_system/systems/atos/.bundle
