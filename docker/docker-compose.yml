@@ -174,7 +174,7 @@ services:
     networks:
       - et_full_system
   azurite:
-    image: mcr.microsoft.com/azure-storage/azurite
+    image: touchify/azurite:2.7
     labels:
       - traefik.http.routers.azurite-router.rule=Host(`azure_blob_storage.et.127.0.0.1.nip.io`)
       - traefik.http.routers.azurite-router.service=azurite-service
