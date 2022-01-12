@@ -145,6 +145,8 @@ services:
       - "${DB_PORT:-0}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
   redis:
     image: redis
     ports:
