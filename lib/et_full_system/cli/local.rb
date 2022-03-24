@@ -6,6 +6,7 @@ module EtFullSystem
   require 'httparty'
   require 'et_full_system/cli/local/file_storage'
   require 'dotenv'
+  require 'tmpdir'
 
   class LocalCommand < Thor
     DEFAULT_BASE_URL="http://localhost:3200"
