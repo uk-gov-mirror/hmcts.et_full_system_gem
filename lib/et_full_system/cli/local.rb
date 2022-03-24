@@ -15,7 +15,7 @@ module EtFullSystem
 
     class RestProviderNotConfigured < RuntimeError; end
     class ServiceUrlIncorrect < RuntimeError; end
-    desc "boot", "Sets up the server - traefik frontends and backends, along with initial data in local s3 and azure storage"
+    desc "boot", "Sets up the server - traefik frontends and backends, along with initial data in local azure storage"
     method_option :base_url, type: :string, default: DEFAULT_BASE_URL
     def boot
       STDERR.puts "boot - base_url is #{options[:base_url]}"
@@ -79,12 +79,10 @@ module EtFullSystem
 
 
     desc "server", "Starts the full system server"
-    method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, s3_web, azure_blob_web, fake_acas_web"
+    method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, azure_blob_web, fake_acas_web"
     method_option :azurite_storage_path, default: ENV.fetch('AZURITE_STORAGE_PATH', '/tmp/azurite_storage'), desc: "Where to store azurite data"
-    method_option :minio_storage_path, default: ENV.fetch('MINIO_STORAGE_PATH', '/tmp/minio_storage'), desc: "Where to store minio data"
     method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
-    method_option :cloud_provider, type: :string, default: ENV.fetch('CLOUD_PROVIDER', 'amazon')
-    method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, s3, azure blob, fake_acas, fake_ccd)'
+    method_option :minimal, type: :boolean, default: false, desc: 'Set to true to only start the minimum (db, redis, mail, azure blob, fake_acas, fake_ccd)'
     method_option :in_docker_compose, type: :boolean, default: false, desc: 'Set to true to assume certain services are in docker compose'
     def server
       puts "Scheduling traefik config and file storage config"
@@ -101,9 +99,9 @@ module EtFullSystem
           without = ['et1', 'et3', 'admin', 'api', 'ccd_export', 'atos_api']
         end
         if options.in_docker_compose?
-          cmd = "CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/ComposeProcfile\" --port=4000"
+          cmd = "RAILS_ENV=#{options[:rails_env]} FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/ComposeProcfile\" --port=4000"
         else
-          cmd = "CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/Procfile\" --port=4000"
+          cmd = "RAILS_ENV=#{options[:rails_env]} AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman godotenv -f #{GEM_PATH}/foreman/.env invoker start \"#{GEM_PATH}/foreman/Procfile\" --port=4000"
         end
         STDERR.puts cmd
         unless without.empty?
@@ -129,7 +127,6 @@ module EtFullSystem
 
     desc "setup", "Sets up everything ready for first run"
     method_option :rails_env, type: :string, default: ENV.fetch('RAILS_ENV', 'production')
-    method_option :cloud_provider, type: :string, default: ENV.fetch('CLOUD_PROVIDER', 'amazon')
     method_option :in_docker_compose, type: :boolean, default: false, desc: 'Set to true to assume certain services are in docker compose'
     def setup
       setup_depencencies
@@ -351,7 +348,7 @@ module EtFullSystem
 
     def setup_et1_service
       puts "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
-      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et1 setup'
 
@@ -359,56 +356,56 @@ module EtFullSystem
       puts cmd
       external_command cmd, 'et1 setup'
 
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" bundle exec rake db:create db:migrate assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
       external_command cmd, 'et1 setup'
     end
 
     def setup_et3_service
       puts "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et3 setup'
 
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle exec rake db:create db:migrate assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
       external_command cmd, 'et3 setup'
     end
 
     def setup_admin_service
       puts "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'admin setup'
 
       puts "|   Admin    | Running rake commands"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle exec rake db:seed assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle exec rake db:seed assets:precompile\""
       puts cmd
       external_command cmd, 'admin setup'
     end
 
     def setup_api_service
       puts "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'api setup'
 
       puts "|   API      | Running rake commands"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle exec rake db:create db:migrate db:seed\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle exec rake db:create db:migrate db:seed\""
       puts cmd
       external_command cmd, 'api setup'
     end
 
     def setup_atos_service
       puts "------------------------------------------------ SETTING UP ATOS SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'atos setup'
     end
 
     def setup_ccd_service
       puts "------------------------------------------------ SETTING UP CCD EXPORT SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et_ccd_export && CLOUD_PROVIDER=#{options[:cloud_provider]} RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_ccd_export.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et_ccd_export RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_ccd_export.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'ccd setup'
     end

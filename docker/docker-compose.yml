@@ -15,7 +15,6 @@ services:
     networks:
       et_full_system:
         aliases:
-          - s3.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - azure_blob_storage.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - notify.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
           - api.${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
@@ -30,7 +29,6 @@ services:
     links:
       - db
       - redis
-      - minio
       - azurite
       - mailhog
       - et
@@ -45,7 +43,6 @@ services:
     links:
       - db
       - redis
-      - minio
       - azurite
       - mailhog
     depends_on:
@@ -53,7 +50,6 @@ services:
       - redis
       - azurite
       - mailhog
-      - minio
     extra_hosts:
       - "localhost.from.docker:${LOCALHOST_FROM_DOCKER_IP}"
     volumes:
@@ -67,7 +63,6 @@ services:
       - et1_assets:/home/app/full_system/systems/et1/public/apply/assets
       - et3_assets:/home/app/full_system/systems/et3/public/assets
       - admin_assets:/home/app/full_system/systems/admin/public/assets
-      - s3_data:/home/app/minio_data
       - et1_bundle:/home/app/full_system/systems/et1/.bundle
       - et3_bundle:/home/app/full_system/systems/et3/.bundle
       - api_bundle:/home/app/full_system/systems/api/.bundle
@@ -94,9 +89,7 @@ services:
       REDIS_HOST: redis
       SERVER_PORT: ${SERVER_PORT:-3100}
       SERVER_DOMAIN: ${SERVER_DOMAIN:-et.127.0.0.1.nip.io}
-      CLOUD_PROVIDER: ${CLOUD_PROVIDER:-azure}
       AZURITE_STORAGE_PATH: /home/app/azure_storage_data
-      MINIO_STORAGE_PATH: /home/app/minio_data
       SHOW_DOWNTIME_BANNER:
       CCD_AUTH_BASE_URL: ${CCD_AUTH_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/auth}
       CCD_IDAM_BASE_URL: ${CCD_IDAM_BASE_URL:-http://ccd.et.127.0.0.1.nip.io:3100/idam}
@@ -158,20 +151,6 @@ services:
       - et_full_system
     volumes:
       - redis_data:/data
-  minio:
-    image: minio/minio
-    labels:
-      - traefik.http.routers.s3-router.rule=Host(`s3.et.127.0.0.1.nip.io`)
-      - traefik.http.routers.s3-router.service=s3-service
-      - traefik.http.services.s3-service.loadbalancer.server.port=9000
-    command:
-      - server
-      - /data
-    networks:
-      - et_full_system
-    environment:
-      MINIO_ACCESS_KEY: accessKey1
-      MINIO_SECRET_KEY: verySecretKey1
   mailhog:
     image: mailhog/mailhog:v1.0.1
     labels:
@@ -197,13 +176,11 @@ volumes:
   global_node_modules:
   et1_node_modules:
   et3_node_modules:
-  s3_node_modules:
   api_node_modules:
   admin_node_modules:
   et1_assets:
   et3_assets:
   admin_assets:
-  s3_data:
   azure_storage_data:
   et1_bundle:
   et3_bundle:

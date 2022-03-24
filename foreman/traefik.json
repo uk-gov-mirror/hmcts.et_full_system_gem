@@ -40,14 +40,6 @@
         }
       }
     },
-    "s3": {
-      "servers": {
-        "web": {
-          "url": "http://localhost:9000",
-          "weight": 1
-        }
-      }
-    },
     "mail": {
       "servers": {
         "web": {
@@ -149,18 +141,6 @@
       "routes": {
         "test_1": {
           "rule": "Host:atos.et.127.0.0.1.nip.io"
-        }
-      }
-    },
-    "s3": {
-      "entryPoints": [
-        "http"
-      ],
-      "backend": "s3",
-      "passHostHeader": true,
-      "routes": {
-        "test_1": {
-          "rule": "Host:s3.et.127.0.0.1.nip.io"
         }
       }
     },

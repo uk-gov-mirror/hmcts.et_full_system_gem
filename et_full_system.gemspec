@@ -24,11 +24,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.add_dependency 'thor', '~> 1.0'
   spec.add_dependency 'httparty', '~> 0.16'
-  spec.add_dependency 'aws-sdk-s3', '~> 1.9'
   spec.add_dependency 'azure-storage', '~> 0.15.0.preview'
   spec.add_dependency 'dotenv', '~> 2.7', '>= 2.7.2'
   spec.add_dependency 'et_fake_ccd', '~> 1.0'
   spec.add_dependency 'gov_fake_notify', '~> 1.1'
-  
+
   spec.add_development_dependency "rake", "~> 13.0"
 end

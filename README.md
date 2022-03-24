@@ -29,7 +29,6 @@ There are other services as well that are run - which are there for testing - th
 
 * et-fake-acas-server (https://github.com/ministryofjustice/et_fake_acas_server) - Provides a fake ACAS server with predictable responses based on various special certificate numbers
 * mailhog (https://github.com/mailhog/MailHog) - Captures all emails sent to allow the test suite or the developer to view them and check them
-* minio (https://github.com/minio/minio) - A local amazon S3 server to avoid having S3 credentials for every environment
 * azurite (https://github.com/Azure/Azurite) - A local azure blob server to avoid having azure credentials for every environment
 
 
@@ -49,7 +48,6 @@ To run without docker, you need a few tools
 
 * Traefik (https://traefik.io)
 * Mailhog (https://github.com/mailhog/MailHog)
-* Minio (https://github.com/minio/minio)
 * Azurite (https://github.com/Azure/Azurite)
 * godotenv (https://github.com/joho/godotenv)
 * freeport (https://github.com/phayes/freeport)
