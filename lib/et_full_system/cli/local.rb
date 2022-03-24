@@ -349,7 +349,7 @@ module EtFullSystem
 
     def setup_et1_service
       puts "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
-      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et1 setup'
 
@@ -357,56 +357,56 @@ module EtFullSystem
       puts cmd
       external_command cmd, 'et1 setup'
 
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" bundle exec rake db:create db:migrate assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
       external_command cmd, 'et1 setup'
     end
 
     def setup_et3_service
       puts "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et3 setup'
 
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle exec rake db:create db:migrate assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle exec rake db:create db:migrate assets:precompile\""
       puts cmd
       external_command cmd, 'et3 setup'
     end
 
     def setup_admin_service
       puts "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'admin setup'
 
       puts "|   Admin    | Running rake commands"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle exec rake db:seed assets:precompile\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle exec rake db:seed assets:precompile\""
       puts cmd
       external_command cmd, 'admin setup'
     end
 
     def setup_api_service
       puts "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'api setup'
 
       puts "|   API      | Running rake commands"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle exec rake db:create db:migrate db:seed\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle exec rake db:create db:migrate db:seed\""
       puts cmd
       external_command cmd, 'api setup'
     end
 
     def setup_atos_service
       puts "------------------------------------------------ SETTING UP ATOS SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'atos setup'
     end
 
     def setup_ccd_service
       puts "------------------------------------------------ SETTING UP CCD EXPORT SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et_ccd_export RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_ccd_export.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et_ccd_export && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_ccd_export.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'ccd setup'
     end
