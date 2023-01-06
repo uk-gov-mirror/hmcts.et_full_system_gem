@@ -26,13 +26,13 @@ RUN mkdir -p /home/app/system_gems/et_full_system && chmod 0777 /home/app/system
 WORKDIR /home/app/full_system
 RUN echo "app ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/user && chmod 0440 /etc/sudoers.d/user
 USER app
-RUN gem install dotenv bundler:1.17.3 invoker et_full_system:$GEM_VERSION et_fake_acas_server
+RUN gem install dotenv bundler:1.17.3 invoker et_full_system:$GEM_VERSION
 CMD /home/app/run
 
 #RUN bash --login -c "gem install bundler --version 1.17.3"
 
 # Install gems required outside of any bundle.
-#RUN bash --login -c "rvm use 2.7.4 && gem install dotenv et_fake_acas_server invoker && gem install et_full_system --version=$GEM_VERSION"
+#RUN bash --login -c "rvm use 2.7.4 && gem install dotenv invoker && gem install et_full_system --version=$GEM_VERSION"
 
 #WORKDIR /home/app/full_system
 

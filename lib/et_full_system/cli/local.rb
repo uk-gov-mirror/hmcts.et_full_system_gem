@@ -149,7 +149,7 @@ module EtFullSystem
 
     desc "setup_dependencies", "Sets up all local dependencies"
     def setup_depencencies
-      cmd = "bash --login -c \"cd /tmp && git clone https://github.com/ministryofjustice/et_fake_acas_server.git && cd et_fake_acas_server && gem build -o et_fake_acas_server.gem et_fake_acas_server && gem install et_fake_acas_server.gem && cd .. && rm -rf et_fake_acas_server\""
+      cmd = "bash --login -c \"cd #{File.join(PROJECT_PATH, 'support', 'fake_services')} && bundle install\""
       STDERR.puts cmd
       external_command cmd, 'setup_dependencies'
     end
