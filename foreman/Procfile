@@ -1,5 +1,8 @@
 traefik: bash --login -c "traefik --providers.rest=true --providers.rest.insecure=true --api.insecure=true --api.insecure=true --entryPoints.http.address=:3100 --entryPoints.traefik.address=:3200"
-fake_services: bash --login -c "cd ${FS_ROOT_PATH}/support/fake_services && ./bin/foreman start --port 9000"
+fake_acas_web: bash --login -c "cd ${FS_ROOT_PATH}/support/fake_services && ./bin/et_fake_acas_server -port 9000 -threads=1 -workers=2"
+fake_ccd_web: bash --login -c "cd ${FS_ROOT_PATH}/support/fake_services && ./bin/et_fake_ccd start --port=9100 --create_case_schema=./config/case_create.json"
+fake_notify_web: bash --login -c "cd ${FS_ROOT_PATH}/support/fake_services && source ./environment_variables/fake_notify.env && ./bin/gov_fake_notify start --port=9200 --config=./config/gov_fake_notify_local.yaml"
+
 et1_web:  export FREEPORT=$(freeport) && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et1.env bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url et1 http://localhost:$FREEPORT && cd systems/et1 && PORT=$FREEPORT ./run.sh"
 et1_sidekiq: bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && cd systems/et1  && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et1.env ./run_sidekiq.sh"
 et3_web:  export FREEPORT=$(freeport) && godotenv -f ${FOREMAN_PATH}/.env godotenv -f ${FOREMAN_PATH}/et3.env bash --login -c "cd ${FS_ROOT_PATH} && et_full_system local wait_for_support && et_full_system local update_service_url et3 http://localhost:$FREEPORT && cd systems/et3 && PORT=$FREEPORT ./run.sh"
