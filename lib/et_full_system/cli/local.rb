@@ -16,6 +16,7 @@ module EtFullSystem
 
     class RestProviderNotConfigured < RuntimeError; end
     class ServiceUrlIncorrect < RuntimeError; end
+    class ServicesNotConfigured < RuntimeError; end
     desc "boot", "Sets up the server - traefik frontends and backends, along with initial data in local azure storage"
     method_option :base_url, type: :string, default: DEFAULT_BASE_URL
     def boot
@@ -54,8 +55,9 @@ module EtFullSystem
       setup_retry_countdown = 10
 
       begin
-        resp = HTTParty.get "#{options[:base_url]}/api/providers/rest", headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        raise RestProviderNotConfigured if resp.code == 404
+        resp = HTTParty.get "#{options[:base_url]}/api/rawdata", headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
+        raise RestProviderNotConfigured if resp.code == 404 || resp.parsed_response.dig('routers', 'rest@internal').nil?
+        raise ServicesNotConfigured if resp.parsed_response.dig('routers', 'et1@rest').nil?
       rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED
         connect_retry_countdown -= 1
         if connect_retry_countdown.zero?
@@ -71,6 +73,15 @@ module EtFullSystem
           raise "Could not find the REST provider in traefik after 10 retries"
         else
           STDERR.puts "Re checking for the REST provider in traefik in 5 seconds"
+          sleep 5
+          retry
+        end
+      rescue ServicesNotConfigured
+        setup_retry_countdown -= 1
+        if setup_retry_countdown.zero?
+          raise "Could not find the ET1 router in traefik after 10 retries"
+        else
+          STDERR.puts "Re checking for the ET1 router in traefik in 5 seconds"
           sleep 5
           retry
         end
@@ -415,8 +426,8 @@ module EtFullSystem
       connect_retry_countdown = 10
       setup_retry_countdown = 10
       begin
-        resp = HTTParty.get "#{options[:base_url]}/api/providers/rest", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
-        raise RestProviderNotConfigured if resp.code == 404
+        resp = HTTParty.get "#{options[:base_url]}/api/rawdata", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+        raise RestProviderNotConfigured if resp.code == 404 || resp.parsed_response.dig('routers', 'rest@internal').nil?
       rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED
         connect_retry_countdown -= 1
         if !options[:wait]
@@ -442,15 +453,16 @@ module EtFullSystem
       end
 
       json = resp.parsed_response.dup
-      backend = json['backends'][service]
-      raise "Unknown service called #{service} - valid options are #{json['backends'].keys.join(', ')}" if backend.nil?
+      backend = json.dig('services', "#{service}@rest")
+      raise "Unknown service called #{service} - valid options are #{json['services'].keys.join(', ')}" if backend.nil?
 
-      container = backend.dig('servers', 'web')
-      raise "The service '#{service}' has no server called 'web' - it must have for this command to work" if container.nil?
+      container = backend.dig('loadBalancer', 'servers')&.first
+      raise "The service '#{service}' has no load balancer with a list of servers - it must have for this command to work" if container.nil?
 
       if container['url'] != url
         container['url'] = url
-        put_resp = HTTParty.put "#{options[:base_url]}/api/providers/rest", body: json.to_json, headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+        new_json = { http: json }.to_json.gsub(/@rest/, '')
+        put_resp = HTTParty.put "#{options[:base_url]}/api/providers/rest", body: new_json, headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
         raise "Error from traefik says: #{put_resp.body}" unless (200..299).include? put_resp.code
 
         validate_rest_backend_url(service, url)
@@ -463,14 +475,14 @@ module EtFullSystem
     def validate_rest_backend_url(service, url)
       retry_countdown = 10
       begin
-        resp = HTTParty.get "#{options[:base_url]}/api/providers/rest", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
-        raise ServiceUrlIncorrect unless (200..299).include?(resp.code) && resp.parsed_response.dig('backends', service, 'servers', 'web', 'url') == url
+        resp = HTTParty.get "#{options[:base_url]}/api/rawdata", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+        raise ServiceUrlIncorrect unless (200..299).include?(resp.code) && resp.parsed_response.dig('services', "#{service}@rest", 'loadBalancer', 'servers')&.first&.fetch('url', nil) == url
         return
       rescue ServiceUrlIncorrect
         retry_countdown -= 1
         raise if retry_countdown.zero?
 
-        STDERR.puts "Retrying request to validate the url of '#{service}' is '#{url}' in 1 second"
+        STDERR.puts "Retrying request to validate the url of '#{service}' is '#{url}' in 1 second (it was #{resp.parsed_response.dig('services', "#{service}@rest", 'loadBalancer', 'servers')&.first&.fetch('url', nil)})"
         sleep 1
         retry
       end
