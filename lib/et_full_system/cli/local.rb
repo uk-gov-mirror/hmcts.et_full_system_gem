@@ -142,6 +142,7 @@ module EtFullSystem
     method_option :in_docker_compose, type: :boolean, default: false, desc: 'Set to true to assume certain services are in docker compose'
     def setup
       setup_depencencies
+      install_bundler if rvm_installed?
       setup_ruby_versions unless !rvm_installed? || options.in_docker_compose?
       setup_services
     end
@@ -360,7 +361,7 @@ module EtFullSystem
 
     def setup_et1_service
       puts "------------------------------------------------ SETTING UP ET1 SERVICE ---------------------------------------------------"
-      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd = "bash --login -c \"cd #{PROJECT_PATH}/systems/et1 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et1.env\" && bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et1 setup'
 
@@ -375,7 +376,7 @@ module EtFullSystem
 
     def setup_et3_service
       puts "------------------------------------------------ SETTING UP ET3 SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et3 && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et3.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'et3 setup'
 
@@ -386,7 +387,7 @@ module EtFullSystem
 
     def setup_admin_service
       puts "------------------------------------------------ SETTING UP ADMIN SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/admin && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_admin.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'admin setup'
 
@@ -398,7 +399,7 @@ module EtFullSystem
 
     def setup_api_service
       puts "------------------------------------------------ SETTING UP API SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/api && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_api.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'api setup'
 
@@ -410,14 +411,14 @@ module EtFullSystem
 
     def setup_atos_service
       puts "------------------------------------------------ SETTING UP ATOS SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/atos && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_atos.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'atos setup'
     end
 
     def setup_ccd_service
       puts "------------------------------------------------ SETTING UP CCD EXPORT SERVICE ---------------------------------------------------"
-      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et_ccd_export && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_ccd_export.env\" gem install bundler:1.17.3 && bundle install --with=#{options[:rails_env]}\""
+      cmd ="bash --login -c \"cd #{PROJECT_PATH}/systems/et_ccd_export && RAILS_ENV=#{options[:rails_env]} godotenv -f \"#{GEM_PATH}/foreman/.env\" godotenv -f \"#{GEM_PATH}/foreman/et_ccd_export.env\" bundle install --with=#{options[:rails_env]}\""
       puts cmd
       external_command cmd, 'ccd setup'
     end
@@ -504,6 +505,13 @@ module EtFullSystem
 
     def rvm_installed?
       !`which rvm`.empty?
+    end
+
+    def install_bundler
+      puts "------------------------------------------------ Installing bundler ---------------------------------------------------"
+      cmd ="bash --login -c \"cd #{PROJECT_PATH} && gem install bundler:1.17.3\""
+      puts cmd
+      external_command cmd, 'ccd setup'
     end
   end
 end
