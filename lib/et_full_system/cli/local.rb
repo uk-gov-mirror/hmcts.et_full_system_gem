@@ -142,7 +142,7 @@ module EtFullSystem
     method_option :in_docker_compose, type: :boolean, default: false, desc: 'Set to true to assume certain services are in docker compose'
     def setup
       setup_depencencies
-      setup_ruby_versions unless options.in_docker_compose?
+      setup_ruby_versions unless !rvm_installed || options.in_docker_compose?
       setup_services
     end
 
@@ -500,6 +500,10 @@ module EtFullSystem
         acc[service] = value.dig('servers', 'web', 'url')
         acc
       end
+    end
+
+    def rvm_installed?
+      !`which rvm`.empty?
     end
   end
 end
