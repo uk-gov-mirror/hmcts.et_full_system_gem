@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    et_full_system (8.0.2)
+    et_full_system (8.0.3)
       azure-storage (~> 0.15.0.preview)
       dotenv (~> 2.7, >= 2.7.2)
       et_fake_ccd (~> 1.0)
@@ -31,8 +31,8 @@ GEM
       faraday (~> 0.9)
       faraday_middleware (~> 0.10)
       nokogiri (~> 1.6, >= 1.6.8)
-    concurrent-ruby (1.2.0)
-    date (3.3.3)
+    concurrent-ruby (1.2.2)
+    date (3.0.3)
     dotenv (2.8.1)
     et_fake_ccd (1.1.11)
       activemodel (~> 6.1)
@@ -64,49 +64,45 @@ GEM
     json-schema (2.8.1)
       addressable (>= 2.4)
     jwt (2.7.0)
-    mail (2.8.0.1)
+    mail (2.8.1)
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
       net-smtp
     mini_mime (1.1.2)
-    mini_portile2 (2.8.1)
-    minitest (5.17.0)
+    minitest (5.13.0)
     multi_xml (0.6.0)
     multipart-post (2.3.0)
     net-imap (0.3.4)
       date
       net-protocol
-    net-pop (0.1.2)
-      net-protocol
+    net-pop (0.1.0)
     net-protocol (0.2.1)
       timeout
-    net-smtp (0.3.3)
-      net-protocol
-    nokogiri (1.14.1)
-      mini_portile2 (~> 2.8.0)
+    net-smtp (0.1.0)
+    nokogiri (1.14.2-x86_64-linux)
       racc (~> 1.4)
     pastel (0.8.0)
       tty-color (~> 0.5)
     public_suffix (5.0.1)
-    racc (1.6.2)
+    racc (1.4.16)
     rack (3.0.4.1)
     rake (13.0.1)
-    roda (3.64.0)
+    roda (3.65.0)
       rack
     roda-enhanced_logger (0.4.0)
       roda (>= 3.19.0)
       tty-logger (>= 0.3, < 1.0)
     rotp (6.2.2)
     thor (1.2.1)
-    tilt (2.0.11)
-    timeout (0.3.1)
+    tilt (2.1.0)
+    timeout (0.1.0)
     tty-color (0.6.0)
     tty-logger (0.6.0)
       pastel (~> 0.8)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    zeitwerk (2.6.6)
+    zeitwerk (2.6.7)
 
 PLATFORMS
   ruby
