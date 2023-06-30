@@ -143,7 +143,7 @@ module EtFullSystem
     def setup
       setup_depencencies
       install_bundler if rvm_installed?
-      setup_ruby_versions unless !rvm_installed? || options.in_docker_compose?
+      setup_ruby_versions
       setup_services
     end
 
@@ -172,6 +172,7 @@ module EtFullSystem
         File.read(version_file).split("\n").first.gsub(/\Aruby-/, '')
       end.uniq - [RUBY_VERSION]
 
+      install_rvm
       versions.each do |version|
         puts "------------------------------------------------ SETTING UP ruby #{version} ---------------------------------------------------"
         cmd = "bash --login -c \"rvm install #{version}\""
@@ -505,6 +506,21 @@ module EtFullSystem
 
     def rvm_installed?
       !`which rvm`.empty?
+    end
+
+    def install_rvm
+      return if rvm_installed?
+
+      raise "Refusing to install rvm locally - please install yourself" if !in_docker_compose?
+
+      puts "------------------------------------------------ Installing rvm ---------------------------------------------------"
+      cmds = ["gpg --keyserver keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB"]
+      cmds << "bash --login -c \"cd #{PROJECT_PATH} && curl -sSL https://get.rvm.io | bash -s stable\""
+
+      cmds.each do |cmd|
+        puts cmd
+        external_command cmd, 'rvm setup'
+      end
     end
 
     def install_bundler
