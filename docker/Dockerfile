@@ -8,7 +8,7 @@ ARG GEM_VERSION=>0
 ARG user_id=1000
 # Get latest rubygems
 RUN gem update --system
-RUN apk add --no-cache postgresql-dev libffi-dev tzdata gettext wget sudo sqlite sqlite-dev nodejs npm yarn shared-mime-info git build-base libc6-compat curl bash openjdk11-jre python2 sassc gpg
+RUN apk add --no-cache postgresql-dev libffi-dev tzdata gettext wget sudo sqlite sqlite-dev nodejs npm yarn shared-mime-info git build-base libc6-compat curl bash openjdk11-jre python2 sassc gnupg
 RUN addgroup app --gid 1000
 RUN adduser -SD -u 1000 --shell /bin/bash --home /home/app app app
 RUN chown -R app:app /usr/local/bundle
