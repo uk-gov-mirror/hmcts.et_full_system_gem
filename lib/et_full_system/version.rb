@@ -1,3 +1,3 @@
 module EtFullSystem
-  VERSION = "8.1.0-rc1"
+  VERSION = "8.1.0-rc2"
 end

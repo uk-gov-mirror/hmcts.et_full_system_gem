@@ -143,6 +143,7 @@ module EtFullSystem
     def setup
       setup_depencencies
       install_bundler if rvm_installed?
+      install_rvm if options.in_docker_compose? && rvm_required?
       setup_ruby_versions
       setup_services
     end
@@ -168,12 +169,8 @@ module EtFullSystem
 
     desc "setup_ruby_versions", "Install all ruby versions required"
     def setup_ruby_versions
-      versions = Dir.glob(File.join(PROJECT_PATH, 'systems', '*', '.ruby-version')).map do |version_file|
-        File.read(version_file).split("\n").first.gsub(/\Aruby-/, '')
-      end.uniq - [RUBY_VERSION]
 
-      install_rvm
-      versions.each do |version|
+      additional_ruby_versions.each do |version|
         puts "------------------------------------------------ SETTING UP ruby #{version} ---------------------------------------------------"
         cmd = "bash --login -c \"rvm install #{version}\""
         puts cmd
@@ -511,8 +508,6 @@ module EtFullSystem
     def install_rvm
       return if rvm_installed?
 
-      raise "Refusing to install rvm locally - please install yourself" if !in_docker_compose?
-
       puts "------------------------------------------------ Installing rvm ---------------------------------------------------"
       cmds = ["gpg --keyserver keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB"]
       cmds << "bash --login -c \"cd #{PROJECT_PATH} && curl -sSL https://get.rvm.io | bash -s stable\""
@@ -521,6 +516,16 @@ module EtFullSystem
         puts cmd
         external_command cmd, 'rvm setup'
       end
+    end
+
+    def additional_ruby_versions
+      @additional_ruby_versions = Dir.glob(File.join(PROJECT_PATH, 'systems', '*', '.ruby-version')).map do |version_file|
+        File.read(version_file).split("\n").first.gsub(/\Aruby-/, '')
+      end.uniq - [RUBY_VERSION]
+    end
+
+    def rvm_required?
+      additional_ruby_versions.any?
     end
 
     def install_bundler
