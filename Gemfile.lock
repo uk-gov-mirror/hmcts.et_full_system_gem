@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    et_full_system (8.1.0.pre.rc3)
+    et_full_system (8.1.0.pre.rc4)
       azure-storage (~> 0.15.0.preview)
       dotenv (~> 2.7, >= 2.7.2)
       et_fake_ccd (~> 1.0)
