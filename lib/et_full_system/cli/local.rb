@@ -172,9 +172,14 @@ module EtFullSystem
 
       additional_ruby_versions.each do |version|
         puts "------------------------------------------------ SETTING UP ruby #{version} ---------------------------------------------------"
-        cmd = "bash --login -c \"rvm install #{version} --autolibs=disable\""
-        puts cmd
-        external_command cmd, "ruby #{version} install"
+        cmds = [
+          "bash --login -c \"rvm install #{version} --autolibs=disable\"",
+          "bash --login -c \"rvm use #{version} && gem install bundler:1.17.3 \"",
+        ]
+        cmds.each do |cmd|
+          puts cmd
+          external_command cmd, "ruby #{version} install"
+        end
       end
     end
 
