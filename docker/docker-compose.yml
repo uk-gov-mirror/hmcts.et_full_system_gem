@@ -69,18 +69,18 @@ services:
       - atos_bundle:/home/app/full_system/systems/atos/.bundle
       - admin_bundle:/home/app/full_system/systems/admin/.bundle
       - admin_bundle:/home/app/full_system/systems/et_ccd_export/.bundle
-      - empty:/home/app/full_system/systems/et1/.env
-      - empty:/home/app/full_system/systems/et3/.env
-      - empty:/home/app/full_system/systems/api/.env
-      - empty:/home/app/full_system/systems/atos/.env
-      - empty:/home/app/full_system/systems/admin/.env
-      - empty:/home/app/full_system/systems/et_ccd_export/.env
-      - empty:/home/app/full_system/systems/et1/.env.local
-      - empty:/home/app/full_system/systems/et3/.env.local
-      - empty:/home/app/full_system/systems/api/.env.local
-      - empty:/home/app/full_system/systems/atos/.env.local
-      - empty:/home/app/full_system/systems/admin/.env.local
-      - empty:/home/app/full_system/systems/et_ccd_export/.env.local
+      - ./.empty:/home/app/full_system/systems/et1/.env
+      - ./.empty:/home/app/full_system/systems/et3/.env
+      - ./.empty:/home/app/full_system/systems/api/.env
+      - ./.empty:/home/app/full_system/systems/atos/.env
+      - ./.empty:/home/app/full_system/systems/admin/.env
+      - ./.empty:/home/app/full_system/systems/et_ccd_export/.env
+      - ./.empty:/home/app/full_system/systems/et1/.env.local
+      - ./.empty:/home/app/full_system/systems/et3/.env.local
+      - ./.empty:/home/app/full_system/systems/api/.env.local
+      - ./.empty:/home/app/full_system/systems/atos/.env.local
+      - ./.empty:/home/app/full_system/systems/admin/.env.local
+      - ./.empty:/home/app/full_system/systems/et_ccd_export/.env.local
     environment:
       DB_HOST: 'db'
       DB_USERNAME: 'postgres'
@@ -189,7 +189,6 @@ volumes:
   atos_bundle:
   db_data:
   redis_data:
-  empty:
 
 networks:
   et_full_system:
