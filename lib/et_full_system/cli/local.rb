@@ -142,8 +142,8 @@ module EtFullSystem
     method_option :in_docker_compose, type: :boolean, default: false, desc: 'Set to true to assume certain services are in docker compose'
     def setup
       setup_depencencies
-      install_bundler if rvm_installed?
       install_rvm if options.in_docker_compose? && rvm_required?
+      install_bundler if rvm_installed?
       setup_ruby_versions
       setup_services
     end
@@ -532,7 +532,7 @@ module EtFullSystem
       puts "------------------------------------------------ Installing bundler ---------------------------------------------------"
       cmd ="bash --login -c \"cd #{PROJECT_PATH} && gem install bundler:1.17.3\""
       puts cmd
-      external_command cmd, 'ccd setup'
+      external_command cmd, 'install_bundler'
     end
   end
 end
